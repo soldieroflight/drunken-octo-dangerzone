@@ -1,7 +1,7 @@
 import pygame
 import sys
 import math
-from mathutils import *
+from .mathutils import *
 
 def cmp(a, b):
     return (a > b) - (a < b)
