@@ -2,10 +2,12 @@ import pygame
 import math, os, sys
 
 from physics.mathutils import *
+from input import *
 
 vec = Vector2(0, 0)
 
 pygame.init()
+keyboard.initialize()
 
 screen = pygame.display.set_mode((1024,768))
 clock = pygame.time.Clock()
