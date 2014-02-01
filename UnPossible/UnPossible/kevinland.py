@@ -30,20 +30,30 @@ class Player(PhysicalObject):
         super().__init__(pos)
         self.keyListener = keyboard.Keyboard()
         self.rigidbody = AABB(pos, 30, 60)
-        self.speed = 100.0 # units/second
+        self.speed = 120.0 # units/second
+        self.jumpForce = Vector2(0.0, -10000.0)
         self.gravity = Vector2(0.0, 980.0)
         
     def update(self, deltaTime):
         super().update(deltaTime)
-        # Always add gravity.
-        self.rigidbody.add_force(self.gravity)
+        movementVector = Vector2(0.0, 0.0)
+        
+        if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
+            self.rigidbody.add_force(self.jumpForce)
+            # Nudge the player up so that the first frame does not detect a collision
+            # with the ground and reground the player, causing a double-force jump.
+            movementVector.y -= 2.0
+            self.grounded = False
+        
+        if not self.rigidbody.grounded:
+            self.rigidbody.add_force(self.gravity)
         
         # Decouple rigidbody motion from player controlled motion.
         bodyPosition = self.rigidbody.position.copy()
         # Step the player's physics.
         self.rigidbody.update(deltaTime)
         # Get the difference in rigidbody movement.
-        movementVector = self.rigidbody.position - bodyPosition
+        movementVector += self.rigidbody.position - bodyPosition
         
         # Handle basic movement.
         if (self.keyListener.get_key_pressed('a')):

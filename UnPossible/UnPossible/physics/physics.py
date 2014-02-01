@@ -32,6 +32,7 @@ class RigidBody(object):
         self.backTorque = 0.0
         self.angvel = 0.0
         self.cof = 0.7
+        self.grounded = False
         
         # various control values
         self.useRotation = True
