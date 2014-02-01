@@ -28,7 +28,7 @@
     <Compile Include="events\endpoint.py" />
     <Compile Include="events\link.py" />
     <Compile Include="events\__init__.py" />
-    <Compile Include="physics\kevinland.py" />
+    <Compile Include="kevinland.py" />
     <Compile Include="physics\particles.py" />
     <Compile Include="physics\collisionutils.py" />
     <Compile Include="physics\mathutils.py" />

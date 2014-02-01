@@ -89,6 +89,7 @@ class ParticleEmitter(object):
         self.totalEmittedCount = 0
         self.totalEmittedTime = 0
         self.emissionCounter = 0
+        self.paused = False
         
         if 'minSize' in description:
             self.minSize = description['minSize']
@@ -191,6 +192,8 @@ class ParticleEmitter(object):
         self.emitterStopValue = random.uniform(self.emitterMinLifetime, self.emitterMaxLifetime)
         
     def isEmitting(self):
+        if self.paused:
+            return False
         if self.lifetimeType == 'forever':
             return True;
         elif self.lifetimeType == 'particles':
@@ -199,7 +202,7 @@ class ParticleEmitter(object):
             return self.totalEmittedTime < self.emitterStopValue
         
     def isAlive(self):
-        if self.isEmitting():
+        if self.isEmitting() or self.paused:
             return True
         else:
             return len(self.particles) > 0
@@ -207,6 +210,12 @@ class ParticleEmitter(object):
     def stop(self):
         self.emitterStopValue = -1
         self.lifetimeType = 'seconds'
+
+    def pause(self):
+        self.paused = True
+
+    def unpause(self):
+        self.paused = False
                 
     def emit(self):
         posScale = 1 - random.uniform(0, 1 - self.emitterRange)
@@ -231,8 +240,8 @@ class ParticleEmitter(object):
             if particle.dead:
                 self.particles.remove(particle)
                 
-        self.totalEmittedTime += time
         if self.isEmitting():
+            self.totalEmittedTime += time
             self.emissionCounter += random.uniform(self.minEmitRate, self.maxEmitRate) * time
             numNewParticles = int(self.emissionCounter)
             
