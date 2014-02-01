@@ -35,16 +35,6 @@ if __name__ == "__main__":
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    mousex, mousey = pygame.mouse.get_pos()
-                    point = Vector2(mousex,mousey)
-                    if box1.contains(point): grabbed_box = box1
-                    elif box2.contains(point): grabbed_box = box2
-                    if not grabbed_box is None: mousex,mousey = pygame.mouse.get_rel()
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
-                    grabbed_box = None
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()

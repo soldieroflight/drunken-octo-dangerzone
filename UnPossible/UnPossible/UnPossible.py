@@ -1,20 +1,26 @@
 import pygame
 import math, os, sys
 
-from physics import *
-#import physics.mathutils
-#from physics.mathutils import *
-#from collisionutils import *
+from physics.mathutils import *
 
-vec = mathutils.Vector2(0, 0)
+vec = Vector2(0, 0)
 
 pygame.init()
 
-# set up pygame stuff
 screen = pygame.display.set_mode((1024,768))
 clock = pygame.time.Clock()
 
 while True:
-    # pygame stuff
     clock.tick(30)
     screen.fill((0,0,0))
+    
+    for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+                
+    pygame.display.update()
