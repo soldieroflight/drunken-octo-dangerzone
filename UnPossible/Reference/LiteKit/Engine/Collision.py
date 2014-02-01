@@ -1,0 +1,1 @@
+def containsPoint(rect, point):    if point.x >= rect.x and point.x <= rect.x + rect.width:        if point.y >= rect.y and point.y <= rect.y + rect.height:            return true    return false
