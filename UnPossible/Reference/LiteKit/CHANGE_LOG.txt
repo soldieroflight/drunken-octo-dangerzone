@@ -1,0 +1,1 @@
+Current Version: 0.0.2Changelog:<0.0.1> 11/5/2012    * Set up initial clone!    * Currently includes BaseGame, EventManager, and Actor. All preliminary.    <0.0.2> 11/16/2012    *Organized File Structure    *Added BaseState and State Manager. All preliminary

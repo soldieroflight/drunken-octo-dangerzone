@@ -1,0 +1,1 @@
+class BaseState(object):    def __init__(self, id):        self.id = id            def update(self):        pass            def draw(self, screen):        pass            def recieveInput(self, inputList):        pass                
