@@ -31,7 +31,7 @@ class Player(PhysicalObject):
         self.keyListener = keyboard.Keyboard()
         self.rigidbody = AABB(pos, 30, 60)
         self.speed = 120.0 # units/second
-        self.jumpForce = Vector2(0.0, -10000.0)
+        self.jumpForce = Vector2(0.0, -20000.0)
         self.gravity = Vector2(0.0, 980.0)
         
     def update(self, deltaTime):
@@ -40,10 +40,7 @@ class Player(PhysicalObject):
         
         if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
             self.rigidbody.add_force(self.jumpForce)
-            # Nudge the player up so that the first frame does not detect a collision
-            # with the ground and reground the player, causing a double-force jump.
-            movementVector.y -= 2.0
-            self.grounded = False
+            self.rigidbody.grounded = False
         
         if not self.rigidbody.grounded:
             self.rigidbody.add_force(self.gravity)
@@ -66,7 +63,20 @@ class Player(PhysicalObject):
         # Synchronize the rigidbody.
         self.rigidbody.position = self.transform.get_translation()
         self.rigidbody.clear_forces()
+        
+    def sync_transform(self):
+        self.transform.set_translation(self.rigidbody.position)
          
+    def debug_draw(self, screen):
+        self.rigidbody.draw(screen)
+        
+        
+class Platform(PhysicalObject):
+    def __init__(self, pos=Vector2(0,0), width=0, height=0):
+        super().__init__(pos)
+        self.rigidbody = AABB(pos, width, height)
+        self.rigidbody.useDynamics = False
+        
     def debug_draw(self, screen):
         self.rigidbody.draw(screen)
     
@@ -76,6 +86,9 @@ if __name__ == "__main__":
     keyboard.initialize()
     
     player = Player(Vector2(100, 400))
+    
+    platform1 = Platform(Vector2(200, 330), 100, 10)
+    platforms = [platform1]
 
     # set up pygame stuff
     screen = pygame.display.set_mode((640,480))
@@ -109,8 +122,12 @@ if __name__ == "__main__":
         player.update(deltaTime)
         
         aabb_vs_plane(player.rigidbody, ground)
+        for platform in platforms:
+            aabb_vs_aabb(player.rigidbody, platform.rigidbody)
         
         player.debug_draw(screen)
+        for platform in platforms:
+            platform.debug_draw(screen)
         ground.draw(screen)
         
         pygame.display.update()

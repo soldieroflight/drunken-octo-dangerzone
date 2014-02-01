@@ -454,6 +454,35 @@ def sphere_vs_plane(sphere,plane):
         return True
     return False
     
+def aabb_vs_aabb(box1, box2):
+    box1xproj = box1.halfvx.project_onto(Vector2(1.0, 0.0)).mag()
+    box2xproj = box2.halfvx.project_onto(Vector2(1.0, 0.0)).mag()
+    
+    box1yproj = box1.halfvy.project_onto(Vector2(0.0, 1.0)).mag()
+    box2yproj = box2.halfvy.project_onto(Vector2(0.0, 1.0)).mag()
+    
+    centerdistx = math.fabs(box1.position.x - box2.position.x)
+    centerdisty = math.fabs(box1.position.y - box2.position.y)
+    
+    if ((box1xproj + box2xproj) > centerdistx) and ((box1yproj + box2yproj) > centerdisty):
+        xdiff = max((box1xproj + box2xproj) - centerdistx, 0)
+        ydiff = max((box1yproj + box2yproj) - centerdisty, 0)
+        if not box1.useDynamics:
+            pass # TODO: Box1 is a fixture.
+        elif not box2.useDynamics:
+            if xdiff < ydiff:
+                if (box1.position.x < box2.position.x): xdiff *= -1.0
+                box1.position.x += xdiff
+                box1.velocity.x = 0
+            else:
+                if (box1.position.y < box2.position.y):
+                    ydiff *= -1.0
+                    box1.grounded = True
+                box1.position.y += ydiff
+                box1.velocity.y = 0
+        else:
+            pass # TODO: Both are dynamic
+    
 def aabb_vs_plane(box, plane):
     dist = (box.position - plane.point).project_onto(plane.normal).mag()
     ra = box.halfvx.project_onto(plane.normal).mag() + box.halfvy.project_onto(plane.normal).mag()

@@ -134,6 +134,11 @@ class Matrix2D(list):
                 
     def get_translation(self):
         return Vector2(self[0][2], self[1][2])
+        
+    def set_translation(self, vec):
+        assert (isinstance(vec, Vector2))
+        self[0][2] = vec.x
+        self[1][2] = vec.y
                 
     def reset(self):
         for row in range(len(self)):
