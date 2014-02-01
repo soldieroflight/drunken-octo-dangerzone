@@ -95,6 +95,9 @@ class Vector2(object):
     def safe_pos(self):
         return (int(self.x), int(self.y))
         
+    def copy(self):
+        return Vector2(self.x, self.y)
+        
 class Matrix2D(list):
     def __init__(self):
         super(Matrix2D,self).__init__()
@@ -103,10 +106,15 @@ class Matrix2D(list):
         self.append([0.0,0.0,1.0])
         
     def translate_x(self,x):
-        self[0][2] += x;
+        self[0][2] += x
         
     def translate_y(self,y):
-        self[1][2] += y;
+        self[1][2] += y
+        
+    def translate(self, vec):
+        assert (isinstance(vec, Vector2))
+        self[0][2] += vec.x
+        self[1][2] += vec.y
         
     def rotate(self,theta):
         theta = math.radians(theta)
@@ -123,6 +131,9 @@ class Matrix2D(list):
         for row in range(len(self)):
             for item in range(len(self[row])):
                 self[row][item] = rotation[row][item]
+                
+    def get_translation(self):
+        return Vector2(self[0][2], self[1][2])
                 
     def reset(self):
         for row in range(len(self)):

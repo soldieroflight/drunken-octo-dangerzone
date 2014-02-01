@@ -12,21 +12,35 @@ from .physics import *
 class AABB(RigidBody):
     def __init__(self,center=None,width=0.0,height=0.0):
         assert (center is None) or isinstance(center,Vector2)
-        self.center = center
+        super().__init__(center)
         self.halfvx = Vector2(x=width/2.0)
         self.halfvy = Vector2(y=height/2.0)
         self.useRotation = False
         
     def __str__(self):
-        return "AABB at position (%.3f, %.3f) with half-vectors:\n\t"%(self.center.x,self.center.y) + \
+        return "AABB at position (%.3f, %.3f) with half-vectors:\n\t"%(self.position.x,self.position.y) + \
                str(self.halfvx) + "\n\t" + \
                str(self.halfvy)
                     
     def contains(self,point):
         assert isinstance(point,Vector2)
         
-        return (point.x <= (self.center.x + self.halfvx.x)) and (point.x >= (self.center.x - self.halfvx.x)) and \
-               (point.y <= (self.center.y + self.halfvy.y)) and (point.y >= (self.center.y - self.halfvy.y))
+        return (point.x <= (self.position.x + self.halfvx.x)) and (point.x >= (self.position.x - self.halfvx.x)) and \
+               (point.y <= (self.position.y + self.halfvy.y)) and (point.y >= (self.position.y - self.halfvy.y))
+               
+    def draw(self, screen):
+        topleft = self.position - self.halfvx - self.halfvy
+        botleft = self.position - self.halfvx + self.halfvy
+        topright = self.position + self.halfvx - self.halfvy
+        botright = self.position + self.halfvx + self.halfvy
+        
+        points = []
+        points.append((topleft.x, topleft.y))
+        points.append((botleft.x, botleft.y))
+        points.append((botright.x, botright.y))
+        points.append((topright.x, topright.y))
+        
+        pygame.draw.lines(screen, (255,255,255), True, points, 3)
                
 class OOBB(RigidBody):
     def __init__(self,center=None,width=0.0,height=0.0,rotation=0.0):
