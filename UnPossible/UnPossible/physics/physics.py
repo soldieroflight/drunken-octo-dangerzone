@@ -498,8 +498,8 @@ def aabb_vs_plane(box, plane):
             box.grounded = True
     elif plane.normal.y < -0.5:
         box.grounded = False
-    if math.fabs(diff) < 1 and plane.normal.y < -0.5:
-        box.grounded = True
+    # if math.fabs(diff) < 1 and plane.normal.y < -0.5:
+        # box.grounded = True
     # elif bp:
         # box.position -= plane.normal.scale(diff)
         # box.velocity = box.velocity.scale(-box.cof)
