@@ -16,7 +16,7 @@ class Collider(object):
         pygame.draw.polygon(screen, (180,180,180), [(p.x,p.y) for p in self.points])
 
 class RigidBody(object):
-    def __init__(self, pos, ivel, rotation=0, mass=1):
+    def __init__(self, pos, ivel=Vector2(0.0), rotation=0, mass=1):
         assert isinstance(pos,Vector2)
         assert isinstance(ivel,Vector2)
         
@@ -108,194 +108,7 @@ class RigidBody(object):
                 # self.rotation = self.rotation + self.angvel*dt
                 self.rotate(self.angvel*dt)
                 self.angvel = self.angvel + self.torque*dt
-                self.angvel *= 0.99
-        
-class AABB(RigidBody):
-    def __init__(self,position=None,width=0.0,height=0.0):
-        assert (position is None) or isinstance(position,Vector2)
-        super(AABB, self).__init__(position,Vector2(0.0,0.0),0.0)
-        self.halfvx = Vector2(x=width/2.0)
-        self.halfvy = Vector2(y=height/2.0)
-        self.useRotation = False
-        
-    def __str__(self):
-        return "AABB at position (%.3f, %.3f) with half-vectors:\n\t"%(self.position.x,self.position.y) + \
-               str(self.halfvx) + "\n\t" + \
-               str(self.halfvy)
-                    
-    def contains(self,point):
-        assert isinstance(point,Vector2)
-        
-        return (point.x <= (self.position.x + self.halfvx.x)) and (point.x >= (self.position.x - self.halfvx.x)) and \
-               (point.y <= (self.position.y + self.halfvy.y)) and (point.y >= (self.position.y - self.halfvy.y))
-               
-class OOBB(RigidBody):
-    def __init__(self,center=None,width=0.0,height=0.0,rotation=0.0):
-        assert isinstance(center,Vector2)
-        super(OOBB, self).__init__(center,Vector2(0.0,0.0),rotation)
-        self.halfw = width/2.0
-        self.halfh = height/2.0
-        # self.rotation = rotation
-        self.up = Vector2(y=1.0)
-        self.right = Vector2(x=1.0)
-        
-        vright = self.right.scale(self.halfw)
-        vup = self.up.scale(self.halfh)
-        self.topleft = self.position - vright + vup
-        self.botleft = self.position - vright - vup
-        self.topright = self.position + vright + vup
-        self.botright = self.position + vright - vup
-        
-    def __str__(self):
-        return "OOBB at position (%.3f, %.3f) with sizes:\n\t"%(self.position.x,self.position.y) + \
-               "Width: %.3f\n\t"%float(self.halfw * 2) + \
-               "Height: %.3f\n\t"%float(self.halfh * 2) + \
-               "and rotated %.3f degrees\n"%float(self.rotation)
-     
-    def contains(self,point):
-        assert isinstance(point,Vector2)
-        dist = math.sqrt((self.position.x - point.x)**2 + (self.position.y - point.y)**2)
-        if dist < self.halfw:
-            return True
-        return False
-        
-    def face_normal(self,point):
-        assert isinstance(point,Vector2)
-        v = (point - self.position)
-        angle = math.degrees(math.acos((v * self.up)/(v.mag()*self.up.mag())))
-        # print angle
-        
-        if (angle >= 315 or angle <= 45):
-            return self.up
-        elif (angle > 45 and angle <= 135):
-            return self.right
-        elif (angle > 135 and angle <= 225):
-            return self.up.scale(-1.0)
-        else:
-            return self.right.scale(-1.0)
-        
-    def compute_axes(self):
-        self.rotation = (self.rotation % 180) - 180
-        up = Vector2(y=-1.0)
-        right = Vector2(x=1.0)
-        rotM = Matrix2D()
-        rotM.rotate(self.rotation)
-        
-        self.up = rotM * up
-        self.right = rotM * right
-        
-        vup = self.up.scale(self.halfh)
-        vright = self.right.scale(self.halfw)
-        
-        self.topleft = self.position - vright + vup
-        self.botleft = self.position - vright - vup
-        self.topright = self.position + vright + vup
-        self.botright = self.position + vright - vup
-        
-    def draw(self,screen):
-        points = []
-        points.append((self.topleft.x, self.topleft.y))
-        points.append((self.botleft.x, self.botleft.y))
-        points.append((self.botright.x, self.botright.y))
-        points.append((self.topright.x, self.topright.y))
-        
-        vup = self.up.scale(self.halfh)
-        vright = self.right.scale(self.halfw)
-        pygame.draw.lines(screen, (255,255,255), True, points, 3)
-        # pygame.draw.line(screen,(255,255,255),(self.position.x,self.position.y),(self.position.x+vright.x,self.position.y+vright.y),3)
-        pygame.draw.line(screen,(255,255,255),(self.position.x,self.position.y),(self.position.x+vup.x,self.position.y+vup.y),3)
-        
-class Plane(object):
-    def __init__(self, point, normal):
-        assert isinstance(point,Vector2)
-        assert isinstance(normal,Vector2)
-        self.point = point
-        self.normal = normal
-        self.cof = 0.7
-        
-    def __str__(self):
-        return "Plane going through point (%.3f, %.3f)\n"%(self.point.x, self.point.y) + \
-                "\twith normal: " + str(self.normal) + "\n"
-        
-    def right(self):
-        rotM = Matrix2D()
-        rotM.rotate(90)
-        return (rotM * self.normal).normal()
-        
-    def draw(self,screen):
-        rotM = Matrix2D()
-        rotM.rotate(90.0)
-        vright = rotM * self.normal
-        
-        start = self.point + (vright.scale(1000))
-        end = self.point - (vright.scale(1000))
-        pygame.draw.line(screen,(255,255,255),(start.x,start.y),(end.x,end.y),3)
-        
-class Sphere(RigidBody):
-    def __init__(self, pos, radius=0, m=1):
-        assert isinstance(pos,Vector2)
-        super(Sphere, self).__init__(pos,Vector2(0.0,0.0),mass=m)
-        self.radius = radius
-        self.cof = 0.7
-        
-    def __str__(self):
-        return "Sphere at position (%.3f, %.3f)\n"%(self.position.x,self.position.y) + \
-                "\tRadius: %.3f\n"%self.radius
-        
-    def draw(self,screen):
-        up = Vector2(y=-1.0)
-        rotM = Matrix2D()
-        rotM.rotate(self.rotation)
-        up = (rotM * up).normal()
-        dir = up.scale(self.radius)
-        pygame.draw.circle(screen, (255,255,255), (int(self.position.x), int(self.position.y)), self.radius, 3)
-        pygame.draw.line(screen, (255,255,255), (int(self.position.x), int(self.position.y)), (self.position.x + dir.x,self.position.y + dir.y), 3)
-        
-class Player(AABB):
-    initialized = 0
-    def __init__(self):
-        if Player.initialized:
-            # print "Second player instance is being instantiated."
-            sys.exit()
-        Player.initialized = 1
-        AABB.__init__(self,position=Vector2(100,100),width=50,height=50)
-        
-        self.control = [False, False]
-        self.jumpForce = Vector2(0.0,-15000.0)
-        self.moveForce = Vector2(500.0,0)
-        self.moveSpeed = 200.0
-        
-        self.grounded = False
-        
-    def input_update(self,events):
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    # self.add_force(self.moveForce.scale(-1))
-                    self.control[0] = True
-                if event.key == pygame.K_d:
-                    # self.add_force(self.moveForce)
-                    self.control[1] = True
-                if event.key == pygame.K_w and self.grounded:
-                    self.add_force(self.jumpForce)
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_a:
-                    self.control[0] = False
-                if event.key == pygame.K_d:
-                    self.control[1] = False
-                    
-        if self.control[0]:
-            # self.add_force(self.moveForce.scale(-1))
-            self.velocity.x = -self.moveSpeed
-        if self.control[1]:
-            # self.add_force(self.moveForce)
-            self.velocity.x = self.moveSpeed
-        if not (self.control[0] or self.control[1]):
-            self.velocity.x = 0.0
-            
-    def draw(self,screen):
-        pygame.draw.rect(screen, (0,0,255), pygame.Rect(self.position.x-25,self.position.y-25,50,50))
-        
+                self.angvel *= 0.99     
         
 def oobb_vs_oobb(box1, box2, screen):
     bridge = box2.position - box1.position
@@ -646,22 +459,22 @@ def aabb_vs_plane(box, plane):
     bp = ra > dist
     diff = ra - dist
     
-    if isinstance(box,Player):
-        if bp:
-            box.position += plane.normal.scale(diff)
-            box.velocity -= box.velocity.project_onto(plane.normal)
-            
-            if plane.normal.y < -0.5: # testing against a ground plane, do grounded checks
-                box.grounded = True
-        elif plane.normal.y < -0.5:
-            box.grounded = False
-        if math.fabs(diff) < 1 and plane.normal.y < -0.5:
+    # if isinstance(box,Player):
+    if bp:
+        box.position += plane.normal.scale(diff)
+        box.velocity -= box.velocity.project_onto(plane.normal)
+        
+        if plane.normal.y < -0.5: # testing against a ground plane, do grounded checks
             box.grounded = True
-    elif bp:
-        box.position -= plane.normal.scale(diff)
-        box.velocity = box.velocity.scale(-box.cof)
-        box.velocity = box.velocity.reflect(plane.normal)
-        colnormal = plane.normal
+    elif plane.normal.y < -0.5:
+        box.grounded = False
+    if math.fabs(diff) < 1 and plane.normal.y < -0.5:
+        box.grounded = True
+    # elif bp:
+        # box.position -= plane.normal.scale(diff)
+        # box.velocity = box.velocity.scale(-box.cof)
+        # box.velocity = box.velocity.reflect(plane.normal)
+        # colnormal = plane.normal
         # box.velocity += colnormal.scale(box.velocity.scale(0.2).mag()).project_onto(plane.right())
         
         # colnormal = plane.normal
