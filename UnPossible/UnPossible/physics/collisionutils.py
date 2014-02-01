@@ -6,8 +6,8 @@
 # ############################################################################
 
 import pygame
-from mathutils import *
-from physics import *
+from .mathutils import *
+from .physics import *
 
 class AABB(RigidBody):
     def __init__(self,center=None,width=0.0,height=0.0):

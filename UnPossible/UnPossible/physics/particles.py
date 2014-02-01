@@ -1,5 +1,5 @@
 import pygame
-from mathutils import *
+from .mathutils import *
 import math
 import random
 
