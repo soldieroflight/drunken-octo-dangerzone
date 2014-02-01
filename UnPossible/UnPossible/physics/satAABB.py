@@ -52,6 +52,9 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
                 grabbed_box = None
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
                 
     # update a box if it's being dragged
     if not grabbed_box is None:
