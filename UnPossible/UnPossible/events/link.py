@@ -3,16 +3,16 @@ from .endpoint import *
 from physics import particles, mathutils
 from physics.mathutils import Vector2
 
-class link(endpoint):
+class Link(Endpoint):
     """Connects a trigger to an endpoint"""
-    def __init__(self, targets, path, activation_time):
+    def __init__(self, targets, path, activationTime):
         """Initialize with a set of components to activate, a list of points for the path, and seconds for activation"""
         super().__init__()
         self.targets = targets
         self.path = path
-        self.time_modifier = 1.0
+        self.timeModifier = 1.0
         self.progress = 0.0
-        self.activation_time = activation_time
+        self.activationTime = activationTime
         self.active = False
         self.particles = particles.ParticleEmitter(self.path[0], {'emitterArea': 0,
                                                                   'minEmitRate': 10,
@@ -31,38 +31,38 @@ class link(endpoint):
         self.progress = 0.0
         self.particles.unpause()
 
-    def get_activation_point(self):
+    def getActivationPoint(self):
         if not self.active:
             return self.path[0]
         pairs = []
-        last_point = None
-        total_length = 0.0
+        lastPoint = None
+        totalLength = 0.0
         for point in self.path:
-            if last_point != None:
-                pairs.append((last_point, point))
-                total_length += mathutils.dist(last_point, point)
-            last_point = point
+            if lastPoint != None:
+                pairs.append((lastPoint, point))
+                totalLength += mathutils.dist(lastPoint, point)
+            lastPoint = point
 
-        drawn_length = 0
+        drawnLength = 0
         for pair in pairs:
-            this_length = mathutils.dist(pair[0], pair[1])
-            if this_length + drawn_length > total_length * self.progress:
-                to_draw = (total_length * self.progress - drawn_length)
-                endpoint = pair[0] + (pair[1] - pair[0]).normal().scale(to_draw)
+            thisLength = mathutils.dist(pair[0], pair[1])
+            if thisLength + drawnLength > totalLength * self.progress:
+                toDraw = (totalLength * self.progress - drawnLength)
+                endpoint = pair[0] + (pair[1] - pair[0]).normal().scale(toDraw)
                 return endpoint
             else:
-                drawn_length += this_length
+                drawnLength += thisLength
         return self.path[-1]
 
-    def update(self, delta_time):
+    def update(self, deltaTime):
         if self.active:
-            self.progress += (delta_time / self.activation_time * self.time_modifier)
-            self.particles.pos = self.get_activation_point()
+            self.progress += (deltaTime / self.activationTime * self.timeModifier)
+            self.particles.pos = self.getActivationPoint()
             if self.progress >= 1.0:
                 self.reset()
                 for target in self.targets:
                     target.trigger()
-        self.particles.update(delta_time)
+        self.particles.update(deltaTime)
 
     def reset(self):
         """Automatically resets itself after activation"""
@@ -71,32 +71,32 @@ class link(endpoint):
         self.progress = 0.0
         self.particles.pause()
 
-    def set_time_modifier(self, new_time_modifier):
-        self.time_modifier = new_time_modifier
+    def setTimeModifier(self, newTimeModifier):
+        self.timeModifier = newTimeModifier
 
     def draw(self, screen):
         pairs = []
-        last_point = None
-        total_length = 0.0
+        lastPoint = None
+        totalLength = 0.0
         for point in self.path:
-            if last_point != None:
-                pairs.append((last_point, point))
-                total_length += mathutils.dist(last_point, point)
-            last_point = point
+            if lastPoint != None:
+                pairs.append((lastPoint, point))
+                totalLength += mathutils.dist(lastPoint, point)
+            lastPoint = point
 
-        drawn_length = 0
+        drawnLength = 0
         for pair in pairs:
             pygame.draw.line(screen, (0, 255, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
 
         for pair in pairs:
-            this_length = mathutils.dist(pair[0], pair[1])
-            if this_length + drawn_length > total_length * self.progress:
-                to_draw = (total_length * self.progress - drawn_length)
-                endpoint = pair[0] + (pair[1] - pair[0]).normal().scale(to_draw)
+            thisLength = mathutils.dist(pair[0], pair[1])
+            if thisLength + drawnLength > totalLength * self.progress:
+                toDraw = (totalLength * self.progress - drawnLength)
+                endpoint = pair[0] + (pair[1] - pair[0]).normal().scale(toDraw)
                 pygame.draw.line(screen, (255, 0, 0), (pair[0].x, pair[0].y), (endpoint.x, endpoint.y))
                 break
             else:
                 pygame.draw.line(screen, (255, 0, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
-                drawn_length += this_length
+                drawnLength += thisLength
 
         self.particles.draw(screen)

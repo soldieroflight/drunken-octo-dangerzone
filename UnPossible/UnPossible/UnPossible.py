@@ -2,7 +2,7 @@ import pygame
 import math, os, sys
 
 from physics.mathutils import *
-from events.link import link
+from events.link import Link
 from input import *
 
 vec = Vector2(0, 0)
@@ -13,10 +13,10 @@ keyboard.initialize()
 screen = pygame.display.set_mode((1024,768))
 clock = pygame.time.Clock()
 
-_link2 = link([], (Vector2(200.0, 100.0), Vector2(200.0, 5.0)), 60.0)
-_link3 = link([], (Vector2(200.0, 100.0), Vector2(200.0, 500.0)), 10.0)
+_link2 = Link([], (Vector2(200.0, 100.0), Vector2(200.0, 5.0)), 60.0)
+_link3 = Link([], (Vector2(200.0, 100.0), Vector2(200.0, 500.0)), 10.0)
 
-_link = link([_link2, _link3], (Vector2(5.0, 5.0), Vector2(100.0, 5.0), Vector2(100.0, 100.0), Vector2(200.0, 100.0)), 10.0)
+_link = Link([_link2, _link3], (Vector2(5.0, 5.0), Vector2(100.0, 5.0), Vector2(100.0, 100.0), Vector2(200.0, 100.0)), 10.0)
 _link.trigger()
 
 while True:
@@ -36,7 +36,6 @@ while True:
     if deltaTime > 0.5:
         deltaTime = 0.5
 
-    #_link.set_time_modifier((math.sin(pygame.time.get_ticks() * 1000.0) + 1.0) * 5.0)
     _link.update(deltaTime)
     _link2.update(deltaTime)
     _link3.update(deltaTime)

@@ -1,4 +1,4 @@
-class endpoint(object):
+class Endpoint(object):
     """Receives events from triggers"""
     def __init__(self):
         self.triggered = False
