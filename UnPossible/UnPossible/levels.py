@@ -1,7 +1,7 @@
 from levelobjects import *
 from baselevel import *
 from floorswitch import *
-from events.link import *
+from link import *
 
 # This is a sample level.
 class TestLevel(Level):
@@ -22,5 +22,5 @@ class TestLevel(Level):
         self.platforms.append(Platform(Vector2(700, 120), 100, 10))
         self.platforms.append(Platform(Vector2(800, 70), 100, 10))
 
-        self.updatables.append(Link([], (Vector2(400, 500), Vector2(400, 300)), 20.0))
-        self.switches.append(FloorSwitch(Vector2(400, 500), 100, 10, self.updatables))
+        self.links.append(Link([], (Vector2(400, 500), Vector2(400, 300)), 20.0))
+        self.switches.append(FloorSwitch(Vector2(400, 500), 100, 10, self.links))

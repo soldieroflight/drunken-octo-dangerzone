@@ -12,14 +12,9 @@ class Player(PhysicalObject):
         self.jumpForce = Vector2(0.0, -35000.0)
         self.facing = 1.0
         
-    def update(self, deltaTime, timeBubbles):
-        super().update(deltaTime, timeBubbles)
+    def update(self, deltaTime):
+        super().update(deltaTime)
         movementVector = Vector2(0.0, 0.0)
-
-        # Account for local time dilation
-        for bubble in timeBubbles:
-            if bubble.contains(self.rigidbody.position):
-                deltaTime *= bubble.timeScale
         
         if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
             self.rigidbody.add_force(self.jumpForce)

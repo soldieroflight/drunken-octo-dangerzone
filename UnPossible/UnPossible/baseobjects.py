@@ -13,12 +13,20 @@ class GameObject(object):
         self.transform = Matrix2D()
         self.parent = None
         self.setup(pos)
+        self.timeScale = 1.0
         
     def setup(self, pos):
         self.transform.translate_x(pos.x)
         self.transform.translate_y(pos.y)
         
-    def update(self, deltaTime, timeBubbles):
+    def update(self, deltaTime):
+        # Local time dilation.
+        deltaTime *= self.timeScale
+        
+    def clear_timescale(self):
+        self.timeScale = 1.0
+        
+    def sync_transform(self):
         pass
         
         
@@ -43,13 +51,9 @@ class Projectile(PhysicalObject):
         # Checked externally for cleanup.
         self.expired = False
         
-    def update(self, deltaTime, timeBubbles):
-        super().update(deltaTime, timeBubbles)
+    def update(self, deltaTime):
+        super().update(deltaTime)
         self.rigidbody.add_force(GRAVITY)
-
-        for bubble in timeBubbles:
-            if bubble.contains(self.rigidbody.position):
-                deltaTime *= bubble.timeScale
 
         self.rigidbody.update(deltaTime)
         self.rigidbody.clear_forces()

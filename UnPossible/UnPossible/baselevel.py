@@ -17,11 +17,11 @@ class Level(object):
         # All of the switches present in the world.
         self.switches = []
         
+        # All of the links present in the world.
+        self.links = []
+        
         # All of the enemies in the world.
         self.enemies = []
-
-        # Other updateable objects (such as links)
-        self.updatables = []
         
         # TODO: Scheme for scenery?
         

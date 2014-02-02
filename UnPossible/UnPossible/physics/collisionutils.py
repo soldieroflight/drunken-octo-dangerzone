@@ -168,24 +168,38 @@ class Sphere(RigidBody):
         rotM.rotate(self.rotation)
         up = (rotM * up).normal()
         dir = up.scale(self.radius)
-        camera.circle(screen, (255,255,255), (self.position.x,self.position.y), self.radius, 3)
-        camera.line(screen, (255,255,255), (self.position.x,self.position.y), (self.position.x + dir.x,self.position.y + dir.y), 3)
+        camera.circle((255,255,255), (self.position.x,self.position.y), self.radius, 3)
+        camera.line((255,255,255), (self.position.x,self.position.y), (self.position.x + dir.x,self.position.y + dir.y), 3)
         
 def test_collision(obj1, obj2):
     if isinstance(obj1, AABB):
         if isinstance(obj2, AABB):
-            aabb_vs_aabb(obj1, obj2)
+            return aabb_vs_aabb(obj1, obj2)
         if isinstance(obj2, PlaneBody):
-            aabb_vs_plane(obj1, obj2)
+            return aabb_vs_plane(obj1, obj2)
+        if isinstance(obj2, Sphere):
+            return aabb_vs_sphere(obj1, obj2)
     if isinstance(obj1, OOBB):
         if isinstance(obj2, OOBB):
-            oobb_vs_oobb(obj1, obj2)
+            return oobb_vs_oobb(obj1, obj2)
         if isinstance(obj2, PlaneBody):
-            oobb_vs_plane(obj1, obj2)
+            return oobb_vs_plane(obj1, obj2)
+        if isinstance(obj2, Sphere):
+            return oobb_vs_sphere(obj1, obj2)
     if isinstance(obj1, PlaneBody):
         if isinstance(obj2, AABB):
-            aabb_vs_plane(obj2, obj1)
+            return aabb_vs_plane(obj2, obj1)
         if isinstance(obj2, OOBB):
-            oobb_vs_plane(obj2, obj1)
-    # TODO: Spheres
+            return oobb_vs_plane(obj2, obj1)
+        if isinstance(obj2, Sphere):
+            return sphere_vs_Plane(obj2, obj1)
+    if isinstance(obj1, Sphere):
+        if isinstance(obj2, AABB):
+            return aabb_vs_sphere(obj2, obj1)
+        if isinstance(obj2, OOBB):
+            return oobb_vs_sphere(obj2, obj1)
+        if isinstance(obj2, PlaneBody):
+            return sphere_vs_plane(obj1, obj2)
+        if isinstance(obj2, Sphere):
+            return sphere_vs_sphere(obj1, obj2)
         

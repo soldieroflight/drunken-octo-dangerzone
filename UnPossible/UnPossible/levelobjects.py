@@ -10,14 +10,16 @@ class Platform(PhysicalObject):
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)
 
-class TimeBubble(object):
-    def __init__(self, timeScale, pos, size):
+class TimeBubble(PhysicalObject):
+    def __init__(self, timeScale, pos, radius):
+        super().__init__(pos)
         self.timeScale = timeScale
-        self.pos = pos
-        self.size = size
+        self.rigidbody = Sphere(pos, radius)
+        self.rigidbody.solid = False
+        self.radius = radius
 
     def contains(self, pos):
-        return dist(self.pos, pos) < self.size
+        return dist(self.rigidbody.position, pos) < self.radius
 
     def debug_draw(self, camera):
-        camera.circle((255, 255, 255), (self.pos.x, self.pos.y), self.size, 1)
+        self.rigidbody.draw(camera)
