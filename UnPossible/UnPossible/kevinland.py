@@ -3,11 +3,11 @@ import math, os, sys
 from physics.mathutils import *
 from physics.collisionutils import *
 from physics.globals import *
-from levels import *
 from baselevel import *
 from input import *
 from camera import *
 from game import *
+from levels import *
 
 if __name__ == "__main__":
     pygame.init()
@@ -19,6 +19,8 @@ if __name__ == "__main__":
     level = TestLevel()
     game = Game(screen)
     game.load_level(level)
+
+    game.timeBubbles.append(TimeBubble(2.0, Vector2(400, 500), 50))
 
     # set up pygame stuff
 

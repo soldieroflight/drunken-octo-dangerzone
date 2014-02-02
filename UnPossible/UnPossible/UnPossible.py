@@ -2,10 +2,10 @@ import pygame
 import math, os, sys
 
 from physics.mathutils import *
-from events.link import Link
 from input import *
 from camera import Camera
 from levelobjects import *
+from events.link import Link
 
 pygame.init()
 keyboard.initialize()
@@ -46,6 +46,6 @@ while True:
     _link.draw(camera)
     _link2.draw(camera)
     _link3.draw(camera)
-    bubble.draw(camera)
+    bubble.debug_draw(camera)
 
     pygame.display.update()

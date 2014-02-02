@@ -3,7 +3,6 @@ import math, os, sys
 from physics.mathutils import *
 from physics.collisionutils import *
 from physics.globals import *
-from levels import *
 from baselevel import *
 from input import *
 from camera import *
@@ -19,7 +18,7 @@ class GameObject(object):
         self.transform.translate_x(pos.x)
         self.transform.translate_y(pos.y)
         
-    def update(self, deltaTime):
+    def update(self, deltaTime, timeBubbles):
         pass
         
         
@@ -44,9 +43,14 @@ class Projectile(PhysicalObject):
         # Checked externally for cleanup.
         self.expired = False
         
-    def update(self, deltaTime):
-        super().update(deltaTime)
+    def update(self, deltaTime, timeBubbles):
+        super().update(deltaTime, timeBubbles)
         self.rigidbody.add_force(GRAVITY)
+
+        for bubble in timeBubbles:
+            if bubble.contains(self.rigidbody.position):
+                deltaTime *= bubble.timeScale
+
         self.rigidbody.update(deltaTime)
         self.rigidbody.clear_forces()
         

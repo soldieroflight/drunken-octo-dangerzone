@@ -19,6 +19,9 @@ class Level(object):
         
         # All of the enemies in the world.
         self.enemies = []
+
+        # Other updateable objects (such as links)
+        self.updatables = []
         
         # TODO: Scheme for scenery?
         

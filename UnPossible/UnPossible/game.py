@@ -13,6 +13,7 @@ class Game(object):
         self.switches = []
         self.updatable = []
         self.everything = []
+        self.timeBubbles = []
         self.player = None
         self.screen = screen
 
@@ -33,7 +34,7 @@ class Game(object):
         # Now let the level do its thing.
         level.load()
     
-        self.player = Player(level.playerStart)
+        self.player = Player(self, level.playerStart)
         self.camera = Camera(Vector2(640, 480), self.level.worldSize, self.screen)
     
         self.enemies.extend(level.enemies)
@@ -42,6 +43,7 @@ class Game(object):
         self.solids.extend(self.enemies)
         self.solids.extend(self.planes)
         self.solids.extend(self.platforms)
+        self.updatable.extend(level.updatables)
         self.updatable.extend(self.enemies)
         self.updatable.extend(self.platforms)
         self.updatable.append(self.player)
@@ -49,12 +51,13 @@ class Game(object):
         self.everything.extend(self.solids)
         self.everything.extend(self.switches)
         self.everything.append(self.player)
+        self.everything.extend(level.updatables)
 
     def update(self, deltaTime):
         for obj in self.updatable:
-            obj.update(deltaTime)
+            obj.update(deltaTime, self.timeBubbles)
         for proj in self.projectiles:
-            proj.update(deltaTime)
+            proj.update(deltaTime, self.timeBubbles)
 
         for obj in self.solids:
             test_collision(self.player.rigidbody, obj.rigidbody)
@@ -63,6 +66,9 @@ class Game(object):
                 if proj.expired:
                     self.projectiles.remove(proj)
                     del proj
+
+        for obj in self.switches:
+            test_collision(self.player.rigidbody, obj.rigidbody)
         
         for obj in self.updatable:
             obj.sync_transform()
@@ -75,3 +81,6 @@ class Game(object):
         
         for proj in self.projectiles:
             proj.debug_draw(self.camera)
+
+        for bubble in self.timeBubbles:
+            bubble.debug_draw(self.camera)

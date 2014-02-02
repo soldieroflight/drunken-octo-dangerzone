@@ -39,6 +39,7 @@ class RigidBody(object):
         self.owner = None
         
         # various control values
+        self.solid = True
         self.useRotation = True
         self.useDynamics = True
         self.useGravity = True
@@ -228,30 +229,33 @@ def oobb_vs_oobb(box1, box2):
             box1.add_force(b1force.project_onto(colnormal))
             box2.add_force(b2force.project_onto(colnormal))
             return False
-            
-        rap = (colpoint - box1.position).normal()
-        rbp = (colpoint - box2.position).normal()
-        rapvel = box1.velocity + rap.scale(box1.angvel)
-        rbpvel = box2.velocity + rbp.scale(box2.angvel)
-        relvel = (rapvel - rbpvel)
-        denom1 = colnormal * colnormal.scale((1.0/box1.mass) + (1.0/box2.mass))
-        denom2 = ((rap.cross(colnormal))**2) # / inertial tensor of A
-        denom3 = ((rbp.cross(colnormal))**2) # / inertial tensor of B
-        denom = denom1 + denom2 + denom3
-        impulse = -((relvel.scale(1 + (box1.cof + box2.cof)/2) * colnormal) / denom)
-        
-        # linear velocity impulses
-        box1.velocity = box1.velocity + colnormal.scale(impulse/box1.mass)
-        box2.velocity = box2.velocity - colnormal.scale(impulse/box2.mass)
-        
-        # angular velocity impulses
-        box1.angvel = box1.angvel + (rap.perpendicular() * colnormal.scale(impulse/box1.mass)) # / inertial tensor of A
-        box2.angvel = box2.angvel - (rbp.perpendicular() * colnormal.scale(impulse/box2.mass)) # / inertial tensor of B
-        
+
+        runSimulation = box1.solid and box2.solid
         if not box1.callback is None:
-            box1.callback(box2)
+            runSimulation |= box1.callback(box2)
         if not box2.callback is None:
-            box2.callback(box1)
+            runSimulation |= box2.callback(box1)
+            
+        if runSimulation:
+            rap = (colpoint - box1.position).normal()
+            rbp = (colpoint - box2.position).normal()
+            rapvel = box1.velocity + rap.scale(box1.angvel)
+            rbpvel = box2.velocity + rbp.scale(box2.angvel)
+            relvel = (rapvel - rbpvel)
+            denom1 = colnormal * colnormal.scale((1.0/box1.mass) + (1.0/box2.mass))
+            denom2 = ((rap.cross(colnormal))**2) # / inertial tensor of A
+            denom3 = ((rbp.cross(colnormal))**2) # / inertial tensor of B
+            denom = denom1 + denom2 + denom3
+            impulse = -((relvel.scale(1 + (box1.cof + box2.cof)/2) * colnormal) / denom)
+        
+            # linear velocity impulses
+            box1.velocity = box1.velocity + colnormal.scale(impulse/box1.mass)
+            box2.velocity = box2.velocity - colnormal.scale(impulse/box2.mass)
+        
+            # angular velocity impulses
+            box1.angvel = box1.angvel + (rap.perpendicular() * colnormal.scale(impulse/box1.mass)) # / inertial tensor of A
+            box2.angvel = box2.angvel - (rbp.perpendicular() * colnormal.scale(impulse/box2.mass)) # / inertial tensor of B
+        
         return True
     
     return False
@@ -428,27 +432,29 @@ def sphere_vs_sphere(sphere1,sphere2):
         if type == -(test1.mag() * test2.mag()) and type > 0: # no collision (moving away)
             return False
         
-        # calculate and apply the impulse
-        relvel = sphere1.velocity - sphere2.velocity
-        denom = colnormal * colnormal.scale((1.0/sphere1.mass) + (1.0/sphere2.mass))
-        impulse = - ((relvel.scale(1.0 + (sphere1.cof + sphere2.cof)/2.0) * colnormal) / denom)
-        
-        sphere1.velocity = sphere1.velocity + colnormal.scale(impulse/sphere1.mass)
-        sphere2.velocity = sphere2.velocity - colnormal.scale(impulse/sphere2.mass)
-        
-        # angular velocity calculations
-        # combvel = min([sphere1.angvel,sphere2.angvel])
-        # sphere1.angvel = combvel
-        # sphere2.angvel = combvel
-        s1avel = sphere1.angvel
-        s2avel = sphere2.angvel
-        sphere1.angvel = ((s1avel - s2avel) * sphere1.cof) / sphere1.mass # inertial tensor of sphere 1
-        sphere2.angvel = ((s2avel - s1avel) * sphere2.cof) / sphere2.mass # inertial tensor of sphere 2
-        
+        runSimulation = sphere1.solid and sphere2.solid
         if not sphere1.callback is None:
-            sphere1.callback(sphere2)
+            runSimulation |= sphere1.callback(sphere2)
         if not sphere2.callback is None:
-            sphere2.callback(sphere1)
+            runSimulation |= sphere2.callback(sphere1)
+
+        if runSimulation:
+            # calculate and apply the impulse
+            relvel = sphere1.velocity - sphere2.velocity
+            denom = colnormal * colnormal.scale((1.0/sphere1.mass) + (1.0/sphere2.mass))
+            impulse = - ((relvel.scale(1.0 + (sphere1.cof + sphere2.cof)/2.0) * colnormal) / denom)
+        
+            sphere1.velocity = sphere1.velocity + colnormal.scale(impulse/sphere1.mass)
+            sphere2.velocity = sphere2.velocity - colnormal.scale(impulse/sphere2.mass)
+        
+            # angular velocity calculations
+            # combvel = min([sphere1.angvel,sphere2.angvel])
+            # sphere1.angvel = combvel
+            # sphere2.angvel = combvel
+            s1avel = sphere1.angvel
+            s2avel = sphere2.angvel
+            sphere1.angvel = ((s1avel - s2avel) * sphere1.cof) / sphere1.mass # inertial tensor of sphere 1
+            sphere2.angvel = ((s2avel - s1avel) * sphere2.cof) / sphere2.mass # inertial tensor of sphere 2
         
         return True
     return False
@@ -490,32 +496,35 @@ def aabb_vs_aabb(box1, box2):
     if ((box1xproj + box2xproj) > centerdistx) and ((box1yproj + box2yproj) > centerdisty):
         xdiff = max((box1xproj + box2xproj) - centerdistx, 0)
         ydiff = max((box1yproj + box2yproj) - centerdisty, 0)
-        if not box1.useDynamics:
-            pass # TODO: Box1 is a fixture.
-        elif not box2.useDynamics:
-            if xdiff < ydiff:
-                if (box1.position.x < box2.position.x): xdiff *= -1.0
-                box1.position.x += xdiff
-                box1.velocity.x = 0
-            else:
-                applyImpulse = True
-                if (box1.position.y < box2.position.y):
-                    ydiff *= -1.0
-                    box1.grounded = True
-                    # Travelling upwards, don't stop.
-                    if (box1.velocity.y < 0):
-                        applyImpulse = False
-                        box1.grounded = False
-                box1.position.y += ydiff
-                if (applyImpulse):
-                    box1.velocity.y = 0
-        else:
-            pass # TODO: Both are dynamic
             
+        runSimulation = box1.solid and box2.solid
         if not box1.callback is None:
-            box1.callback(box2)
+            runSimulation |= box1.callback(box2)
         if not box2.callback is None:
-            box2.callback(box1)
+            runSimulation |= box2.callback(box1)
+
+        if runSimulation:
+            if not box1.useDynamics:
+                pass # TODO: Box1 is a fixture.
+            elif not box2.useDynamics:
+                if xdiff < ydiff:
+                    if (box1.position.x < box2.position.x): xdiff *= -1.0
+                    box1.position.x += xdiff
+                    box1.velocity.x = 0
+                else:
+                    applyImpulse = True
+                    if (box1.position.y < box2.position.y):
+                        ydiff *= -1.0
+                        box1.grounded = True
+                        # Travelling upwards, don't stop.
+                        if (box1.velocity.y < 0):
+                            applyImpulse = False
+                            box1.grounded = False
+                    box1.position.y += ydiff
+                    if (applyImpulse):
+                        box1.velocity.y = 0
+            else:
+                pass # TODO: Both are dynamic
     
 def aabb_vs_plane(box, plane):
     dist = (box.position - plane.point).project_onto(plane.normal).mag()

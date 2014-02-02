@@ -19,5 +19,5 @@ class TimeBubble(object):
     def contains(self, pos):
         return dist(self.pos, pos) < self.size
 
-    def draw(self, camera):
+    def debug_draw(self, camera):
         camera.circle((255, 255, 255), (self.pos.x, self.pos.y), self.size, 1)

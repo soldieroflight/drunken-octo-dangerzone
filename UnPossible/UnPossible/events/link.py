@@ -30,6 +30,9 @@ class Link(Endpoint):
         self.progress = 0.0
         self.particles.unpause()
 
+    def sync_transform(self):
+        pass
+
     def getActivationPoint(self):
         if not self.active:
             return self.path[0]
@@ -76,6 +79,9 @@ class Link(Endpoint):
         self.active = False
         self.progress = 0.0
         self.particles.pause()
+
+    def debug_draw(self, camera):
+        self.draw(camera)
 
     def draw(self, camera):
         pairs = []

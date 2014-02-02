@@ -1,8 +1,10 @@
 from baseobjects import *
+from game import *
 
 class Player(PhysicalObject):
-    def __init__(self, pos=Vector2(0,0)):
+    def __init__(self, game, pos=Vector2(0,0)):
         super().__init__(pos)
+        self.game = game
         self.keyListener = keyboard.Keyboard()
         self.rigidbody = AABB(pos, 30, 60)
         self.rigidbody.owner = self
@@ -10,9 +12,14 @@ class Player(PhysicalObject):
         self.jumpForce = Vector2(0.0, -35000.0)
         self.facing = 1.0
         
-    def update(self, deltaTime):
-        super().update(deltaTime)
+    def update(self, deltaTime, timeBubbles):
+        super().update(deltaTime, timeBubbles)
         movementVector = Vector2(0.0, 0.0)
+
+        # Account for local time dilation
+        for bubble in timeBubbles:
+            if bubble.contains(self.rigidbody.position):
+                deltaTime *= bubble.timeScale
         
         if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
             self.rigidbody.add_force(self.jumpForce)
@@ -45,7 +52,7 @@ class Player(PhysicalObject):
         # Handle firing of projectiles.
         if (self.keyListener.get_key_pressed('f')):
             proj = Projectile(self.transform.get_translation().copy(), Vector2(self.facing, 0.0))
-            globalProjectiles.append(proj)
+            self.game.projectiles.append(proj)
          
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)
