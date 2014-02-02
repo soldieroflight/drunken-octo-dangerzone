@@ -475,11 +475,17 @@ def aabb_vs_aabb(box1, box2):
                 box1.position.x += xdiff
                 box1.velocity.x = 0
             else:
+                applyImpulse = True
                 if (box1.position.y < box2.position.y):
                     ydiff *= -1.0
                     box1.grounded = True
+                    # Travelling upwards, don't stop.
+                    if (box1.velocity.y < 0):
+                        applyImpulse = False
+                        box1.grounded = False
                 box1.position.y += ydiff
-                box1.velocity.y = 0
+                if (applyImpulse):
+                    box1.velocity.y = 0
         else:
             pass # TODO: Both are dynamic
     
@@ -498,8 +504,8 @@ def aabb_vs_plane(box, plane):
             box.grounded = True
     elif plane.normal.y < -0.5:
         box.grounded = False
-    if math.fabs(diff) < 1 and plane.normal.y < -0.5:
-        box.grounded = True
+    # if math.fabs(diff) < 1 and plane.normal.y < -0.5:
+        # box.grounded = True
     # elif bp:
         # box.position -= plane.normal.scale(diff)
         # box.velocity = box.velocity.scale(-box.cof)

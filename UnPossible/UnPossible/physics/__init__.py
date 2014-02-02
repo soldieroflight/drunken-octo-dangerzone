@@ -1,1 +1,1 @@
-__all__ = ["mathutils", "physics", "collisionutils", "particles"]
+__all__ = ["mathutils", "physics", "globals", "collisionutils", "particles"]

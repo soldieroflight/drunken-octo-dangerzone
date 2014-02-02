@@ -2,8 +2,11 @@ import pygame
 import math, os, sys
 from physics.mathutils import *
 from physics.collisionutils import *
+from physics.globals import *
 from input import *
 from camera import *
+
+globalProjectiles = []
 
 class GameObject(object):
     def __init__(self, pos=Vector2(0,0)):
@@ -25,6 +28,27 @@ class PhysicalObject(GameObject):
         super().__init__(pos)
         self.rigidbody = None
     
+    def sync_transform(self):
+        self.transform.set_translation(self.rigidbody.position)
+        
+
+class Projectile(PhysicalObject):
+    def __init__(self, pos=Vector2(0,0), dir=Vector2(0,0)):
+        super().__init__(pos)
+        self.radius = 3
+        self.rigidbody = AABB(pos, self.radius, self.radius)
+        self.initialSpeed = 500
+        self.rigidbody.velocity = Vector2(dir.x * self.initialSpeed, dir.y)
+        
+    def update(self, deltaTime):
+        super().update(deltaTime)
+        self.rigidbody.add_force(GRAVITY)
+        self.rigidbody.update(deltaTime)
+        self.rigidbody.clear_forces()
+        
+    def debug_draw(self, screen):
+        pygame.draw.circle(screen, (255,255,255), self.rigidbody.position.safe_pos(), self.radius)
+    
         
 class Player(PhysicalObject):
     def __init__(self, pos=Vector2(0,0)):
@@ -34,6 +58,7 @@ class Player(PhysicalObject):
         self.speed = 120.0 # units/second
         self.jumpForce = Vector2(0.0, -20000.0)
         self.gravity = Vector2(0.0, 980.0)
+        self.facing = 1.0
         
     def update(self, deltaTime):
         super().update(deltaTime)
@@ -54,10 +79,12 @@ class Player(PhysicalObject):
         movementVector += self.rigidbody.position - bodyPosition
         
         # Handle basic movement.
-        if (self.keyListener.get_key_pressed('a')):
+        if (self.keyListener.get_key_pressed('a') or self.keyListener.get_key_pressed('left')):
             movementVector.x -= self.speed * deltaTime
-        if (self.keyListener.get_key_pressed('d')):
+            self.facing = -1.0
+        if (self.keyListener.get_key_pressed('d') or self.keyListener.get_key_pressed('right')):
             movementVector.x += self.speed * deltaTime
+            self.facing = 1.0
             
         self.transform.translate(movementVector)
         
@@ -65,8 +92,10 @@ class Player(PhysicalObject):
         self.rigidbody.position = self.transform.get_translation()
         self.rigidbody.clear_forces()
         
-    def sync_transform(self):
-        self.transform.set_translation(self.rigidbody.position)
+        # Handle firing of projectiles.
+        if (self.keyListener.get_key_pressed('f')):
+            proj = Projectile(self.transform.get_translation().copy(), Vector2(self.facing, 0.0))
+            globalProjectiles.append(proj)
          
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)
@@ -89,7 +118,8 @@ if __name__ == "__main__":
     player = Player(Vector2(100, 400))
     
     platform1 = Platform(Vector2(200, 330), 100, 10)
-    platforms = [platform1]
+    platform2 = Platform(Vector2(300, 280), 100, 10)
+    platforms = [platform1, platform2]
 
     # set up pygame stuff
     screen = pygame.display.set_mode((640,480))
@@ -103,7 +133,7 @@ if __name__ == "__main__":
 
     while True:
         t = pygame.time.get_ticks()
-        clock.tick(30)
+        clock.tick(60)
         screen.fill((0,0,0))
         
         # event handling
@@ -122,16 +152,23 @@ if __name__ == "__main__":
         deltaTime = clock.get_time()/1000.0
                 
         player.update(deltaTime)
+        for proj in globalProjectiles:
+            proj.update(deltaTime)
         camera.update(player.rigidbody.position)
         
         aabb_vs_plane(player.rigidbody, ground)
         for platform in platforms:
             aabb_vs_aabb(player.rigidbody, platform.rigidbody)
         
+        player.sync_transform()
+
         player.debug_draw(camera)
         for platform in platforms:
             platform.debug_draw(camera)
         ground.draw(camera)
+        
+        for proj in globalProjectiles:
+            proj.debug_draw(camera)
         
         pygame.display.update()
         ticks = pygame.time.get_ticks() - t
