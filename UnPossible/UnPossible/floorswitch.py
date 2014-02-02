@@ -7,15 +7,16 @@ class FloorSwitch(PhysicalObject):
         self.targets = targets
         self.rigidbody = AABB(position, width, height)
         self.rigidbody.owner = self
-        self.rigidbody.callback = lambda collider: self.trigger()
+        self.rigidbody.callback = self.trigger
+        self.rigidbody.solid = False
         
     def update(self, deltaTime):
         super().update(deltaTime)
 
-    def trigger(self):
+    def trigger(self, other):
         for target in self.targets:
             target.trigger()
-        return True
+        return False
 
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)

@@ -232,9 +232,9 @@ def oobb_vs_oobb(box1, box2):
 
         runSimulation = box1.solid and box2.solid
         if not box1.callback is None:
-            runSimulation |= box1.callback(box2)
+            runSimulation &= box1.callback(box2)
         if not box2.callback is None:
-            runSimulation |= box2.callback(box1)
+            runSimulation &= box2.callback(box1)
             
         if runSimulation:
             rap = (colpoint - box1.position).normal()
@@ -434,9 +434,9 @@ def sphere_vs_sphere(sphere1,sphere2):
         
         runSimulation = sphere1.solid and sphere2.solid
         if not sphere1.callback is None:
-            runSimulation |= sphere1.callback(sphere2)
+            runSimulation &= sphere1.callback(sphere2)
         if not sphere2.callback is None:
-            runSimulation |= sphere2.callback(sphere1)
+            runSimulation &= sphere2.callback(sphere1)
 
         if runSimulation:
             # calculate and apply the impulse
@@ -504,9 +504,9 @@ def aabb_vs_aabb(box1, box2):
             
         runSimulation = box1.solid and box2.solid
         if not box1.callback is None:
-            runSimulation |= box1.callback(box2)
+            runSimulation &= box1.callback(box2)
         if not box2.callback is None:
-            runSimulation |= box2.callback(box1)
+            runSimulation &= box2.callback(box1)
 
         if runSimulation:
             if not box1.useDynamics:

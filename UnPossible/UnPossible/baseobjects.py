@@ -63,3 +63,4 @@ class Projectile(PhysicalObject):
         
     def on_collision(self, other):
         self.expired = True
+        return False
