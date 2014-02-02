@@ -26,7 +26,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="animatedObject.py" />
+    <Compile Include="baselevel.py" />
+    <Compile Include="baseobjects.py" />
     <Compile Include="camera.py" />
+    <Compile Include="enemies.py" />
     <Compile Include="events\endpoint.py" />
     <Compile Include="events\link.py" />
     <Compile Include="events\__init__.py" />
@@ -35,6 +38,8 @@
     <Compile Include="input\keymappings.py" />
     <Compile Include="input\__init__.py" />
     <Compile Include="kevinland.py" />
+    <Compile Include="levelobjects.py" />
+    <Compile Include="levels.py" />
     <Compile Include="physics\globals.py" />
     <Compile Include="physics\particles.py" />
     <Compile Include="physics\collisionutils.py" />
@@ -42,6 +47,7 @@
     <Compile Include="physics\physics.py" />
     <Compile Include="physics\satAABB.py" />
     <Compile Include="physics\__init__.py" />
+    <Compile Include="player.py" />
     <Compile Include="UnPossible.py" />
   </ItemGroup>
   <ItemGroup>

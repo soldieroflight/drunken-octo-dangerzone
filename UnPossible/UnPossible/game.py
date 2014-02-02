@@ -1,5 +1,7 @@
 from physics.mathutils import *
-from kevinland import *
+from baselevel import *
+from levelobjects import *
+from player import *
 
 class Game(object):
     def __init__(self, screen):

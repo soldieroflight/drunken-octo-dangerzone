@@ -1,4 +1,4 @@
-from kevinland import *
+from levelobjects import *
 from baselevel import *
 
 # This is a sample level.
