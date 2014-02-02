@@ -8,7 +8,7 @@ class Player(PhysicalObject):
         self.keyListener = keyboard.Keyboard()
         self.rigidbody = AABB(pos, 30, 60)
         self.rigidbody.owner = self
-        self.speed = 120.0 # units/second
+        self.speed = 180.0 # units/second
         self.jumpForce = Vector2(0.0, -35000.0)
         self.facing = 1.0
         
@@ -17,7 +17,7 @@ class Player(PhysicalObject):
         movementVector = Vector2(0.0, 0.0)
         
         if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
-            self.rigidbody.add_force(self.jumpForce)
+            self.rigidbody.add_force(self.jumpForce.scale(1.0 / 60.0 / deltaTime))
             self.rigidbody.grounded = False
         
         if not self.rigidbody.grounded:
