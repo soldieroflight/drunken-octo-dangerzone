@@ -116,11 +116,22 @@ class OOBB(RigidBody):
         
 class Plane(object):
     def __init__(self, point, normal):
+        self.rigidbody = PlaneBody(point, normal)
+        
+    def debug_draw(self, camera):
+        self.draw(camera)
+        
+    def draw(self, camera):
+        self.rigidbody.draw(camera)
+    
+class PlaneBody(object):
+    def __init__(self, point, normal):
         assert isinstance(point,Vector2)
         assert isinstance(normal,Vector2)
         self.point = point
         self.normal = normal
         self.cof = 0.4
+        self.owner = None
         
     def __str__(self):
         return "Plane going through point (%.3f, %.3f)\n"%(self.point.x, self.point.y) + \
@@ -136,9 +147,9 @@ class Plane(object):
         rotM.rotate(90.0)
         vright = rotM * self.normal
         
-        start = self.point + (vright.scale(1000))
-        end = self.point - (vright.scale(1000))
-        camera.line((255,255,255),(start.x,start.y),(end.x,end.y),3)
+        start = self.point + (vright.scale(10000))
+        end = self.point - (vright.scale(10000))
+        camera.line((255,255,255), start.safe_pos(), end.safe_pos(),3)
         
 class Sphere(RigidBody):
     def __init__(self, pos, radius=0, m=1):
@@ -164,14 +175,14 @@ def test_collision(obj1, obj2):
     if isinstance(obj1, AABB):
         if isinstance(obj2, AABB):
             aabb_vs_aabb(obj1, obj2)
-        if isinstance(obj2, Plane):
+        if isinstance(obj2, PlaneBody):
             aabb_vs_plane(obj1, obj2)
     if isinstance(obj1, OOBB):
         if isinstance(obj2, OOBB):
             oobb_vs_oobb(obj1, obj2)
-        if isinstance(obj2, Plane):
+        if isinstance(obj2, PlaneBody):
             oobb_vs_plane(obj1, obj2)
-    if isinstance(obj1, Plane):
+    if isinstance(obj1, PlaneBody):
         if isinstance(obj2, AABB):
             aabb_vs_plane(obj2, obj1)
         if isinstance(obj2, OOBB):

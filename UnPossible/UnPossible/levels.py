@@ -5,12 +5,17 @@ from baselevel import *
 class TestLevel(Level):
     def __init__(self):
         super().__init__()
-        self.worldSize = (800, 600)
+        self.worldSize = Vector2(1200, 600)
         self.ground = 500
-        self.playerStart = (100, 400)
+        self.playerStart = Vector2(100, 400)
         
     def load(self):
         super().load()
         
-        platforms.append(Platform(Vector2(200, 330), 100, 10))
-        platforms.append(Platform(Vector2(300, 280), 100, 10))
+        self.platforms.append(Platform(Vector2(200, 370), 100, 10))
+        self.platforms.append(Platform(Vector2(300, 320), 100, 10))
+        self.platforms.append(Platform(Vector2(400, 270), 100, 10))
+        self.platforms.append(Platform(Vector2(500, 220), 100, 10))
+        self.platforms.append(Platform(Vector2(600, 170), 100, 10))
+        self.platforms.append(Platform(Vector2(700, 120), 100, 10))
+        self.platforms.append(Platform(Vector2(800, 70), 100, 10))

@@ -14,6 +14,8 @@ globalSolids = []
 globalPlatforms = []
 globalEnemies = []
 globalSwitches = []
+globalUpdatable = []
+globalEverything = []
 
 globalPlayer = None
 
@@ -128,6 +130,7 @@ class Platform(PhysicalObject):
         self.rigidbody.draw(camera)
         
 def load_level(level):
+    global globalPlayer
     assert isinstance(level, Level)
     
     # Make the boundaries of the level.
@@ -151,16 +154,26 @@ def load_level(level):
     globalSolids.extend(globalEnemies)
     globalSolids.extend(globalPlanes)
     globalSolids.extend(globalPlatforms)
+    globalUpdatable.extend(globalEnemies)
+    globalUpdatable.extend(globalPlatforms)
+    globalUpdatable.append(globalPlayer)
+    
+    globalEverything.extend(globalSolids)
+    globalEverything.extend(globalSwitches)
+    globalEverything.append(globalPlayer)
     
 
 if __name__ == "__main__":
     pygame.init()
     keyboard.initialize()
+    
+    level = TestLevel()
+    load_level(level)
 
     # set up pygame stuff
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
-    camera = Camera(Vector2(640, 480), Vector2(800, 600), screen)
+    camera = Camera(Vector2(640, 480), level.worldSize, screen)
 
     while True:
         clock.tick(60)
@@ -178,30 +191,25 @@ if __name__ == "__main__":
                 
         deltaTime = clock.get_time()/1000.0
                 
-        player.update(deltaTime)
+        for obj in globalUpdatable:
+            obj.update(deltaTime)
         for proj in globalProjectiles:
             proj.update(deltaTime)
-        camera.update(player.rigidbody.position)
+        camera.update(globalPlayer.rigidbody.position)
         
         for obj in globalSolids:
-            test_collision(player.rigidbody, obj.rigidbody)
-        for platform in platforms:
-            test_collision(player.rigidbody, platform.rigidbody)
-            
-        for proj in globalProjectiles:
-            for platform in platforms:
-                test_collision(proj.rigidbody, platform.rigidbody)
-            test_collision(proj.rigidbody, ground)
-            if proj.expired:
-                globalProjectiles.remove(proj)
-                del proj
+            test_collision(globalPlayer.rigidbody, obj.rigidbody)
+            for proj in globalProjectiles:
+                test_collision(proj.rigidbody, obj.rigidbody)
+                if proj.expired:
+                    globalProjectiles.remove(proj)
+                    del proj
         
-        player.sync_transform()
+        for obj in globalUpdatable:
+            obj.sync_transform()
 
-        player.debug_draw(camera)
-        for platform in platforms:
-            platform.debug_draw(camera)
-        ground.draw(camera)
+        for obj in globalEverything:
+            obj.debug_draw(camera)
         
         for proj in globalProjectiles:
             proj.debug_draw(camera)
