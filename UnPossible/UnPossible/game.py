@@ -99,6 +99,8 @@ class Game(object):
         self.camera.update(self.player.rigidbody.position)
 
     def draw(self):
+        self.camera.drawBackground()
+
         for obj in self.everything:
             obj.debug_draw(self.camera)
         

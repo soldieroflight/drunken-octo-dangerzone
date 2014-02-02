@@ -8,7 +8,7 @@ class Player(PhysicalObject):
         self.keyListener = keyboard.Keyboard()
         self.rigidbody = AABB(pos, 30, 60)
         self.rigidbody.owner = self
-        self.speed = 120.0 # units/second
+        self.speed = 180.0 # units/second
         self.jumpForce = Vector2(0.0, -35000.0)
         self.facing = 1.0
         
