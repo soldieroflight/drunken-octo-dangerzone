@@ -8,16 +8,6 @@ from baselevel import *
 from input import *
 from camera import *
 
-globalProjectiles = []
-globalPlanes = []
-globalSolids = []
-globalPlatforms = []
-globalEnemies = []
-globalSwitches = []
-globalUpdatable = []
-globalEverything = []
-
-globalPlayer = None
 
 class GameObject(object):
     def __init__(self, pos=Vector2(0,0)):
@@ -129,51 +119,20 @@ class Platform(PhysicalObject):
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)
         
-def load_level(level):
-    global globalPlayer
-    assert isinstance(level, Level)
-    
-    # Make the boundaries of the level.
-    # Ground.
-    globalPlanes.append(Plane(Vector2(0, level.ground), Vector2(0.0, -1.0)))
-    # Left bound.
-    globalPlanes.append(Plane(Vector2(0, 0), Vector2(1.0, 0.0)))
-    # Right bound.
-    globalPlanes.append(Plane(Vector2(level.worldSize.x, 0), Vector2(-1.0, 0.0)))
-    # Ceiling.
-    globalPlanes.append(Plane(Vector2(0, 0), Vector2(0.0, 1.0)))
-    
-    # Now let the level do its thing.
-    level.load()
-    
-    globalPlayer = Player(level.playerStart)
-    
-    globalEnemies.extend(level.enemies)
-    globalSwitches.extend(level.switches)
-    globalPlatforms.extend(level.platforms)
-    globalSolids.extend(globalEnemies)
-    globalSolids.extend(globalPlanes)
-    globalSolids.extend(globalPlatforms)
-    globalUpdatable.extend(globalEnemies)
-    globalUpdatable.extend(globalPlatforms)
-    globalUpdatable.append(globalPlayer)
-    
-    globalEverything.extend(globalSolids)
-    globalEverything.extend(globalSwitches)
-    globalEverything.append(globalPlayer)
-    
+from game import *
 
 if __name__ == "__main__":
     pygame.init()
     keyboard.initialize()
     
-    level = TestLevel()
-    load_level(level)
-
-    # set up pygame stuff
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
-    camera = Camera(Vector2(640, 480), level.worldSize, screen)
+
+    level = TestLevel()
+    game = Game(screen)
+    game.load_level(level)
+
+    # set up pygame stuff
 
     while True:
         clock.tick(60)
@@ -191,27 +150,7 @@ if __name__ == "__main__":
                 
         deltaTime = clock.get_time()/1000.0
                 
-        for obj in globalUpdatable:
-            obj.update(deltaTime)
-        for proj in globalProjectiles:
-            proj.update(deltaTime)
-        camera.update(globalPlayer.rigidbody.position)
-        
-        for obj in globalSolids:
-            test_collision(globalPlayer.rigidbody, obj.rigidbody)
-            for proj in globalProjectiles:
-                test_collision(proj.rigidbody, obj.rigidbody)
-                if proj.expired:
-                    globalProjectiles.remove(proj)
-                    del proj
-        
-        for obj in globalUpdatable:
-            obj.sync_transform()
-
-        for obj in globalEverything:
-            obj.debug_draw(camera)
-        
-        for proj in globalProjectiles:
-            proj.debug_draw(camera)
+        game.update(deltaTime)
+        game.draw()
         
         pygame.display.update()
