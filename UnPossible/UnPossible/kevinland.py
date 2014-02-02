@@ -10,6 +10,12 @@ from camera import *
 
 globalProjectiles = []
 globalPlanes = []
+globalSolids = []
+globalPlatforms = []
+globalEnemies = []
+globalSwitches = []
+
+globalPlayer = None
 
 class GameObject(object):
     def __init__(self, pos=Vector2(0,0)):
@@ -137,23 +143,24 @@ def load_level(level):
     # Now let the level do its thing.
     level.load()
     
+    globalPlayer = Player(level.playerStart)
+    
+    globalEnemies.extend(level.enemies)
+    globalSwitches.extend(level.switches)
+    globalPlatforms.extend(level.platforms)
+    globalSolids.extend(globalEnemies)
+    globalSolids.extend(globalPlanes)
+    globalSolids.extend(globalPlatforms)
+    
 
 if __name__ == "__main__":
     pygame.init()
     keyboard.initialize()
-    
-    player = Player(Vector2(100, 400))
-    
-    platform1 = Platform(Vector2(200, 330), 100, 10)
-    platform2 = Platform(Vector2(300, 280), 100, 10)
-    platforms = [platform1, platform2]
 
     # set up pygame stuff
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
     camera = Camera(Vector2(640, 480), Vector2(800, 600), screen)
-    
-    ground = Plane(Vector2(240, 450), Vector2(0.0, -1.0))
 
     while True:
         clock.tick(60)
@@ -176,7 +183,8 @@ if __name__ == "__main__":
             proj.update(deltaTime)
         camera.update(player.rigidbody.position)
         
-        test_collision(player.rigidbody, ground)
+        for obj in globalSolids:
+            test_collision(player.rigidbody, obj.rigidbody)
         for platform in platforms:
             test_collision(player.rigidbody, platform.rigidbody)
             
