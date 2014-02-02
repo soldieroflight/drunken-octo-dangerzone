@@ -6,6 +6,18 @@ from events.link import Link
 from input import *
 from camera import Camera
 
+class TimeBubble(object):
+    def __init__(self, timeScale, pos, size):
+        self.timeScale = timeScale
+        self.pos = pos
+        self.size = size
+
+    def contains(self, pos):
+        return dist(self.pos, pos) < self.size
+
+    def draw(self, camera):
+        camera.circle((255, 255, 255), (self.pos.x, self.pos.y), self.size, 1)
+
 pygame.init()
 keyboard.initialize()
 
@@ -18,6 +30,8 @@ _link3 = Link([], (Vector2(600.0, 100.0), Vector2(600.0, 500.0)), 10.0)
 
 _link = Link([_link2, _link3], (Vector2(405.0, 5.0), Vector2(500.0, 5.0), Vector2(500.0, 100.0), Vector2(600.0, 100.0)), 10.0)
 _link.trigger()
+
+bubble = TimeBubble(0.2, Vector2(600.0, 100.0), 50)
 
 while True:
     clock.tick(30)
@@ -36,14 +50,13 @@ while True:
     if deltaTime > 0.5:
         deltaTime = 0.5
 
-    _link.update(deltaTime)
-    _link2.update(deltaTime)
-    _link3.update(deltaTime)
+    _link.update(deltaTime, [bubble])
+    _link2.update(deltaTime, [bubble])
+    _link3.update(deltaTime, [bubble])
 
-    camera.rect.left += round(deltaTime + 0.5)
-    #camera.rect.top += round(deltaTime + 0.5)
     _link.draw(camera)
     _link2.draw(camera)
     _link3.draw(camera)
+    bubble.draw(camera)
 
     pygame.display.update()

@@ -10,7 +10,6 @@ class Link(Endpoint):
         super().__init__()
         self.targets = targets
         self.path = path
-        self.timeModifier = 1.0
         self.progress = 0.0
         self.activationTime = activationTime
         self.active = False
@@ -54,15 +53,22 @@ class Link(Endpoint):
                 drawnLength += thisLength
         return self.path[-1]
 
-    def update(self, deltaTime):
+    def update(self, deltaTime, timeBubbles):
         if self.active:
-            self.progress += (deltaTime / self.activationTime * self.timeModifier)
-            self.particles.pos = self.getActivationPoint()
+            activationPoint = self.getActivationPoint()
+            self.particles.pos = activationPoint
+
+            timeScale = 1.0
+            for bubble in timeBubbles:
+                if bubble.contains(activationPoint):
+                    timeScale *= bubble.timeScale
+
+            self.progress += (deltaTime / self.activationTime * timeScale)
             if self.progress >= 1.0:
                 self.reset()
                 for target in self.targets:
                     target.trigger()
-        self.particles.update(deltaTime)
+        self.particles.update(deltaTime, timeBubbles)
 
     def reset(self):
         """Automatically resets itself after activation"""
@@ -70,9 +76,6 @@ class Link(Endpoint):
         self.active = False
         self.progress = 0.0
         self.particles.pause()
-
-    def setTimeModifier(self, newTimeModifier):
-        self.timeModifier = newTimeModifier
 
     def draw(self, camera):
         pairs = []

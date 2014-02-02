@@ -10,11 +10,11 @@ class Camera(object):
 
     def transform(self, worldCoordinates):
         if isinstance(worldCoordinates, Vector2):
-            return worldCoordinates - Vector2(self.rect.x, self.rect.y)
+            return (worldCoordinates - Vector2(self.rect.x, self.rect.y)).safe_pos()
         elif isinstance(worldCoordinates, pygame.Rect):
             return worldCoordinates.move((-self.rect.x, -self.rect.y))
         else:
-            return (worldCoordinates[0] - self.rect.x, worldCoordinates[1] - self.rect.y)
+            return (int(worldCoordinates[0] - self.rect.x), int(worldCoordinates[1] - self.rect.y))
 
     def update(self, playerPos):
         assert isinstance(playerPos, Vector2)
