@@ -17,7 +17,7 @@ class Player(PhysicalObject):
         movementVector = Vector2(0.0, 0.0)
         
         if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
-            self.rigidbody.add_force(self.jumpForce)
+            self.rigidbody.add_force(self.jumpForce.scale(1.0 / 60.0 / deltaTime))
             self.rigidbody.grounded = False
         
         if not self.rigidbody.grounded:

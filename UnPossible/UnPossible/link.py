@@ -69,9 +69,6 @@ class Link(Endpoint):
                 self.reset()
                 for target in self.targets:
                     target.trigger()
-        
-    def update_particles(self, deltaTime, timeBubbles):
-        self.particles.update(deltaTime, timeBubbles)
 
     def reset(self):
         """Automatically resets itself after activation"""
@@ -111,5 +108,3 @@ class Link(Endpoint):
             else:
                 camera.line((255, 0, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
                 drawnLength += thisLength
-
-        self.particles.draw(camera)
