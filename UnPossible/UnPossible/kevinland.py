@@ -46,8 +46,8 @@ class Projectile(PhysicalObject):
         self.rigidbody.update(deltaTime)
         self.rigidbody.clear_forces()
         
-    def debug_draw(self, screen):
-        pygame.draw.circle(screen, (255,255,255), self.rigidbody.position.safe_pos(), self.radius)
+    def debug_draw(self, camera):
+        camera.circle((255,255,255), self.rigidbody.position.safe_pos(), self.radius)
     
         
 class Player(PhysicalObject):
