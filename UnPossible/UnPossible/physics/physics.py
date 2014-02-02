@@ -423,9 +423,6 @@ def sphere_vs_sphere(sphere1,sphere2):
     if dist < sphere1.radius + sphere2.radius:
         cp = (sphere1.position + sphere2.position).scale(0.5)
         colnormal = (sphere2.position - sphere1.position).normal()
-        diff = (sphere1.radius + sphere2.radius) - dist
-        sphere1.position -= colnormal.scale(diff/2)
-        sphere2.position -= colnormal.scale(-diff/2)
         test1 = sphere1.velocity.project_onto(colnormal)
         test2 = sphere2.velocity.project_onto(colnormal)
         type = test1 * test2
@@ -439,6 +436,11 @@ def sphere_vs_sphere(sphere1,sphere2):
             runSimulation &= sphere2.callback(sphere1)
 
         if runSimulation:
+            diff = (sphere1.radius + sphere2.radius) - dist
+            sphere1.position -= colnormal.scale(diff/2)
+            sphere2.position -= colnormal.scale(-diff/2)
+            
+                
             # calculate and apply the impulse
             relvel = sphere1.velocity - sphere2.velocity
             denom = colnormal * colnormal.scale((1.0/sphere1.mass) + (1.0/sphere2.mass))
@@ -577,7 +579,27 @@ def aabb_vs_plane(box, plane):
     return col
     
 def aabb_vs_sphere(box, sphere):
-    return False # TODO
+    col = False
+    # TODO: Optimize.
+    # Find the closest corner to the sphere's center.
+    topleft = box.position - box.halfvx - box.halfvy
+    botleft = box.position - box.halfvx + box.halfvy
+    topright = box.position + box.halfvx - box.halfvy
+    botright = box.position + box.halfvx + box.halfvy
+    
+    topleftDist = dist2(topleft, sphere.position)
+    botleftDist = dist2(botleft, sphere.position)
+    toprightDist = dist2(topright, sphere.position)
+    botrightDist = dist2(botright, sphere.position)
+    
+    closestCorner = min([topleftDist, botleftDist, toprightDist, botrightDist])
+    if closestCorner < sphere.radius**2:
+        col = True
+        
+        if box.solid and sphere.solid:
+            pass # TODO: Collision response.
+            
+    return col
     
 def oobb_vs_sphere(box, sphere):
     return False # TODO

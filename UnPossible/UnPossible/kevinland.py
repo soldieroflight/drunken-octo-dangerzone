@@ -16,7 +16,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
 
-    level = TestLevel()
+    level = PlatformTest()
     game = Game(screen)
     game.load_level(level)
 
