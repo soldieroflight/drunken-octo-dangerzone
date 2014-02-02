@@ -3,10 +3,13 @@ import math, os, sys
 from physics.mathutils import *
 from physics.collisionutils import *
 from physics.globals import *
+from levels import *
+from baselevel import *
 from input import *
 from camera import *
 
 globalProjectiles = []
+globalPlanes = []
 
 class GameObject(object):
     def __init__(self, pos=Vector2(0,0)):
@@ -65,7 +68,6 @@ class Player(PhysicalObject):
         self.rigidbody.owner = self
         self.speed = 120.0 # units/second
         self.jumpForce = Vector2(0.0, -35000.0)
-        self.gravity = Vector2(0.0, 980.0)
         self.facing = 1.0
         
     def update(self, deltaTime):
@@ -77,7 +79,7 @@ class Player(PhysicalObject):
             self.rigidbody.grounded = False
         
         if not self.rigidbody.grounded:
-            self.rigidbody.add_force(self.gravity)
+            self.rigidbody.add_force(PLAYER_GRAVITY)
         
         # Decouple rigidbody motion from player controlled motion.
         bodyPosition = self.rigidbody.position.copy()
@@ -118,6 +120,22 @@ class Platform(PhysicalObject):
         
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)
+        
+def load_level(level):
+    assert isinstance(level, Level)
+    
+    # Make the boundaries of the level.
+    # Ground.
+    globalPlanes.append(Plane(Vector2(0, level.ground), Vector2(0.0, -1.0)))
+    # Left bound.
+    globalPlanes.append(Plane(Vector2(0, 0), Vector2(1.0, 0.0)))
+    # Right bound.
+    globalPlanes.append(Plane(Vector2(level.worldSize.x, 0), Vector2(-1.0, 0.0)))
+    # Ceiling.
+    globalPlanes.append(Plane(Vector2(0, 0), Vector2(0.0, 1.0)))
+    
+    # Now let the level do its thing.
+    level.load()
     
 
 if __name__ == "__main__":
