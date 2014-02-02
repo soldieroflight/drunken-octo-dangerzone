@@ -463,27 +463,31 @@ def sphere_vs_plane(sphere,plane):
     # simple check here too: project the vector from the sphere to the point on the plane
     # onto the planes normal.  if the magnitude of the projection is less than the radius,
     # collision
+    col = False
     
     dist = (sphere.position - plane.point) * plane.normal
     
     if dist < sphere.radius or dist < 0:
-        diff = sphere.radius - dist
-        sphere.position += plane.normal.scale(diff)
-        sphere.velocity = sphere.velocity.scale(-sphere.cof)
-        sphere.velocity = sphere.velocity.reflect(plane.normal)
-        sphere.velocity += plane.right().scale(sphere.angvel / 20.0)
-        
-        # angular velocity equations
-        xvel = sphere.velocity * plane.right()
-        sphere.angvel = xvel * plane.cof
+        col = True
+        # Only do response if the object is solid.
+        if sphere.solid:
+            diff = sphere.radius - dist
+            sphere.position += plane.normal.scale(diff)
+            sphere.velocity = sphere.velocity.scale(-sphere.cof)
+            sphere.velocity = sphere.velocity.reflect(plane.normal)
+            sphere.velocity += plane.right().scale(sphere.angvel / 20.0)
+            
+            # angular velocity equations
+            xvel = sphere.velocity * plane.right()
+            sphere.angvel = xvel * plane.cof
         
         if not sphere.callback is None:
             sphere.callback(plane)
         
-        return True
-    return False
+    return col
     
 def aabb_vs_aabb(box1, box2):
+    col = False
     box1xproj = box1.halfvx.project_onto(Vector2(1.0, 0.0)).mag()
     box2xproj = box2.halfvx.project_onto(Vector2(1.0, 0.0)).mag()
     
@@ -494,6 +498,7 @@ def aabb_vs_aabb(box1, box2):
     centerdisty = math.fabs(box1.position.y - box2.position.y)
     
     if ((box1xproj + box2xproj) > centerdistx) and ((box1yproj + box2yproj) > centerdisty):
+        col = True
         xdiff = max((box1xproj + box2xproj) - centerdistx, 0)
         ydiff = max((box1yproj + box2yproj) - centerdisty, 0)
             
@@ -525,8 +530,11 @@ def aabb_vs_aabb(box1, box2):
                         box1.velocity.y = 0
             else:
                 pass # TODO: Both are dynamic
+                
+    return col
     
 def aabb_vs_plane(box, plane):
+    col = False
     dist = (box.position - plane.point).project_onto(plane.normal).mag()
     ra = box.halfvx.project_onto(plane.normal).mag() + box.halfvy.project_onto(plane.normal).mag()
     bp = ra > dist
@@ -534,11 +542,14 @@ def aabb_vs_plane(box, plane):
     
     # if isinstance(box,Player):
     if bp:
-        box.position += plane.normal.scale(diff)
-        box.velocity -= box.velocity.project_onto(plane.normal)
-        
-        if plane.normal.y < -0.5: # testing against a ground plane, do grounded checks
-            box.grounded = True
+        col = True
+        # Only do response if the box is solid.
+        if box.solid:
+            box.position += plane.normal.scale(diff)
+            box.velocity -= box.velocity.project_onto(plane.normal)
+            
+            if plane.normal.y < -0.5: # testing against a ground plane, do grounded checks
+                box.grounded = True
             
         if not box.callback is None:
             box.callback(plane)
@@ -562,3 +573,11 @@ def aabb_vs_plane(box, plane):
         # impulse = -((rpvel.scale(1 + 0.2).cross(colnormal)) / denom)
         
         # box.velocity += colnormal.scale(box.velocity.scale(0.2).mag()).project_onto(plane.right())
+        
+    return col
+    
+def aabb_vs_sphere(box, sphere):
+    return False # TODO
+    
+def oobb_vs_sphere(box, sphere):
+    return False # TODO

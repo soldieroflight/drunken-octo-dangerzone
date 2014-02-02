@@ -1,5 +1,5 @@
 import pygame
-from .endpoint import *
+from endpoint import *
 from physics import particles, mathutils
 from physics.mathutils import Vector2
 
@@ -30,9 +30,6 @@ class Link(Endpoint):
         self.progress = 0.0
         self.particles.unpause()
 
-    def sync_transform(self):
-        pass
-
     def getActivationPoint(self):
         if not self.active:
             return self.path[0]
@@ -56,22 +53,20 @@ class Link(Endpoint):
                 drawnLength += thisLength
         return self.path[-1]
 
-    def update(self, deltaTime, timeBubbles):
+    def update(self, deltaTime):
+        super().update(deltaTime)
         if self.active:
             activationPoint = self.getActivationPoint()
             self.particles.pos = activationPoint
 
-            timeScale = 1.0
-            for bubble in timeBubbles:
-                if bubble.contains(activationPoint):
-                    timeScale *= bubble.timeScale
-
-            self.progress += (deltaTime / self.activationTime * timeScale)
+            self.progress += (deltaTime / self.activationTime * self.timeScale)
             if self.progress >= 1.0:
                 self.reset()
                 for target in self.targets:
                     target.trigger()
-        self.particles.update(deltaTime, timeBubbles)
+        
+    def update_particles(self, deltaTime, timeBubbles):
+        self.particles.update(deltaTime * self.timeScale, timeBubbles)
 
     def reset(self):
         """Automatically resets itself after activation"""

@@ -1,6 +1,9 @@
-class Endpoint(object):
+from baseobjects import *
+
+class Endpoint(GameObject):
     """Receives events from triggers"""
     def __init__(self):
+        super().__init__()
         self.triggered = False
 
     def trigger(self):
