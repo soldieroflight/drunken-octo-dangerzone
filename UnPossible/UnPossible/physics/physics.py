@@ -423,22 +423,24 @@ def sphere_vs_sphere(sphere1,sphere2):
     if dist < sphere1.radius + sphere2.radius:
         cp = (sphere1.position + sphere2.position).scale(0.5)
         colnormal = (sphere2.position - sphere1.position).normal()
-        diff = (sphere1.radius + sphere2.radius) - dist
-        sphere1.position -= colnormal.scale(diff/2)
-        sphere2.position -= colnormal.scale(-diff/2)
         test1 = sphere1.velocity.project_onto(colnormal)
         test2 = sphere2.velocity.project_onto(colnormal)
         type = test1 * test2
         if type == -(test1.mag() * test2.mag()) and type > 0: # no collision (moving away)
             return False
-        
+    
         runSimulation = sphere1.solid and sphere2.solid
         if not sphere1.callback is None:
-            runSimulation |= sphere1.callback(sphere2)
+            runSimulation &= sphere1.callback(sphere2)
         if not sphere2.callback is None:
-            runSimulation |= sphere2.callback(sphere1)
-
+            runSimulation &= sphere2.callback(sphere1)
+            
         if runSimulation:
+            diff = (sphere1.radius + sphere2.radius) - dist
+            sphere1.position -= colnormal.scale(diff/2)
+            sphere2.position -= colnormal.scale(-diff/2)
+            
+                
             # calculate and apply the impulse
             relvel = sphere1.velocity - sphere2.velocity
             denom = colnormal * colnormal.scale((1.0/sphere1.mass) + (1.0/sphere2.mass))
@@ -504,9 +506,9 @@ def aabb_vs_aabb(box1, box2):
             
         runSimulation = box1.solid and box2.solid
         if not box1.callback is None:
-            runSimulation |= box1.callback(box2)
+            runSimulation &= box1.callback(box2)
         if not box2.callback is None:
-            runSimulation |= box2.callback(box1)
+            runSimulation &= box2.callback(box1)
 
         if runSimulation:
             if not box1.useDynamics:
@@ -577,7 +579,27 @@ def aabb_vs_plane(box, plane):
     return col
     
 def aabb_vs_sphere(box, sphere):
-    return False # TODO
+    col = False
+    # TODO: Optimize.
+    # Find the closest corner to the sphere's center.
+    topleft = box.position - box.halfvx - box.halfvy
+    botleft = box.position - box.halfvx + box.halfvy
+    topright = box.position + box.halfvx - box.halfvy
+    botright = box.position + box.halfvx + box.halfvy
+    
+    topleftDist = dist2(topleft, sphere.position)
+    botleftDist = dist2(botleft, sphere.position)
+    toprightDist = dist2(topright, sphere.position)
+    botrightDist = dist2(botright, sphere.position)
+    
+    closestCorner = min([topleftDist, botleftDist, toprightDist, botrightDist])
+    if closestCorner < sphere.radius**2:
+        col = True
+        
+        if box.solid and sphere.solid:
+            pass # TODO: Collision response.
+            
+    return col
     
 def oobb_vs_sphere(box, sphere):
     return False # TODO

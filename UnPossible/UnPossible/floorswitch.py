@@ -6,6 +6,7 @@ class FloorSwitch(PhysicalObject):
         super().__init__(position)
         self.targets = targets
         self.rigidbody = AABB(position, width, height)
+        self.rigidbody.solid = False
         self.rigidbody.owner = self
         self.rigidbody.callback = lambda collider: self.trigger()
         

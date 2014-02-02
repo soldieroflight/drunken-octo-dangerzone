@@ -9,6 +9,9 @@ import math
 def dist(x,y):
     # print x, y
     return math.sqrt((x.x-y.x)**2 + (x.y-y.y)**2)
+    
+def dist2(x,y):
+    return (x.x-y.x)**2 + (x.y-y.y)**2
 
 def distance(x1,y1,x2,y2):
     return math.sqrt((x1-x2)**2 + (y1-y2)**2)
