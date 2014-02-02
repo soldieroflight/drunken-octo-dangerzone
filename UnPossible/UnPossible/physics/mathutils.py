@@ -45,6 +45,9 @@ class Vector2(object):
     def __str__(self):
         return "Vector2 <%.3f %.3f>"%(self.x,self.y)
         
+    def approximately(self,v):
+        return approximately(self.x,v.x) and approximately(self.y,v.y)
+        
     def cross(self,other):
         assert isinstance(other,Vector2)
         return (self.x*other.y) - (self.y*other.x)

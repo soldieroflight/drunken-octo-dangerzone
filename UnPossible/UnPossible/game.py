@@ -2,6 +2,7 @@ from physics.mathutils import *
 from baselevel import *
 from levelobjects import *
 from player import *
+from enemies import *
 
 class Game(object):
     def __init__(self, screen):
@@ -39,6 +40,11 @@ class Game(object):
         self.camera = Camera(Vector2(640, 480), self.level.worldSize, self.screen)
     
         self.enemies.extend(level.enemies)
+        
+        self.enemies.append( BaseEnemy( Vector2( 300, 450 ) ) )
+        self.enemies.append( PatrollingEnemy( Vector2( 600, 450 ), [ Vector2( 600, 450 ), Vector2( 800, 450 ) ] ) )
+
+        
         self.switches.extend(level.switches)
         self.links.extend(level.links)
         self.platforms.extend(level.platforms)
@@ -108,3 +114,6 @@ class Game(object):
 
         for bubble in self.timeBubbles:
             bubble.debug_draw(self.camera)
+            
+        for enemy in self.enemies:
+            enemy.debug_draw(self.camera)
