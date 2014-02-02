@@ -1,5 +1,6 @@
 import pygame
 from physics.mathutils import *
+import random
 
 class Camera(object):
     """Transforms coordinates from world to screen"""
@@ -7,6 +8,27 @@ class Camera(object):
         self.rect = pygame.Rect(0, 0, screenSize.x, screenSize.y)
         self.worldSize = worldSize
         self.screen = screen
+        self.background = None
+        self.backgroundDimensions = self.worldSize
+        self.parallaxScale = 1.0
+
+    def set_background(self, surface, parallaxScale=1.0):
+        assert surface.get_width() * parallaxScale <= self.worldSize.x and surface.get_height() * parallaxScale <= self.worldSize.y
+        assert surface.get_width() >= self.rect.width and surface.get_height >= self.rect.height
+        self.background = surface
+        self.backgroundDimensions = surface.get_size()
+        self.parallaxScale = parallaxScale
+
+    def debug_set_background(self, dimensions):
+        assert dimensions[0] <= self.worldSize.x and dimensions[1] <= self.worldSize.y
+        assert dimensions[0] >= self.rect.width and dimensions[1] >= self.rect.height
+        self.background = pygame.Surface(dimensions)
+        self.backgroundDimensions = dimensions
+        for i in range(0, 10):
+            pos = (int(random.uniform(0, dimensions[0])), int(random.uniform(0, dimensions[1])))
+            radius = int(random.uniform(1.0, 100.0))
+            color = (int(random.uniform(0, 255)), int(random.uniform(0, 255)), int(random.uniform(0, 255)))
+            pygame.draw.circle(self.background, color, pos, radius)
 
     def transform(self, worldCoordinates):
         if isinstance(worldCoordinates, Vector2):
@@ -19,6 +41,7 @@ class Camera(object):
     def update(self, playerPos):
         assert isinstance(playerPos, Vector2)
         self.rect.bottom = min(self.worldSize.y, playerPos.y + self.rect.height * 0.8)
+        self.rect.top = max(0, self.rect.top)
         self.rect.centerx = playerPos.x
         self.rect.right = min(self.worldSize.x, self.rect.right)
         self.rect.left = max(0, self.rect.left)
@@ -26,6 +49,15 @@ class Camera(object):
     def isInCamera(self, boundingBox):
         assert isinstance(boundingBox, pygame.Rect)
         return self.rect.colliderect(boundingBox)
+
+    def drawBackground(self):
+        backgroundRect = self.rect.copy()
+        width = self.worldSize.x - self.rect.width
+        height = self.worldSize.y - self.rect.height
+        backgroundRect.left = self.rect.left / width * (self.backgroundDimensions[0] - self.rect.width) * self.parallaxScale
+        backgroundRect.top = self.rect.top / height * (self.backgroundDimensions[1] - self.rect.height) * self.parallaxScale
+        self.screen.blit(self.background, (0, 0), backgroundRect)
+        pass
 
     def blit(self, source, worldCoords, area=None, special_flags = 0):
         assert isinstance(worldCoords, pygame.Rect)

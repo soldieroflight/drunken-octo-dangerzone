@@ -20,6 +20,8 @@ if __name__ == "__main__":
     game = Game(screen)
     game.load_level(level)
 
+    game.camera.debug_set_background((700, 500))
+
     game.timeBubbles.append(TimeBubble(2.0, Vector2(400, 500), 50))
 
     # set up pygame stuff
