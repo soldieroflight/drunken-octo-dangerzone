@@ -29,10 +29,8 @@
     <Compile Include="baselevel.py" />
     <Compile Include="baseobjects.py" />
     <Compile Include="camera.py" />
+    <Compile Include="endpoint.py" />
     <Compile Include="enemies.py" />
-    <Compile Include="events\endpoint.py" />
-    <Compile Include="events\link.py" />
-    <Compile Include="events\__init__.py" />
     <Compile Include="floorswitch.py" />
     <Compile Include="game.py" />
     <Compile Include="input\keyboard.py" />
@@ -41,6 +39,7 @@
     <Compile Include="kevinland.py" />
     <Compile Include="levelobjects.py" />
     <Compile Include="levels.py" />
+    <Compile Include="link.py" />
     <Compile Include="physics\globals.py" />
     <Compile Include="physics\particles.py" />
     <Compile Include="physics\collisionutils.py" />
@@ -52,7 +51,6 @@
     <Compile Include="UnPossible.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="events\" />
     <Folder Include="input\" />
     <Folder Include="physics\" />
   </ItemGroup>
