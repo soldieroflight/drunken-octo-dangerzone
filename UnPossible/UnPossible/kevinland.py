@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     game.camera.debug_set_background((700, 500))
 
-    game.timeBubbles.append(TimeBubble(5.0, Vector2(400, 500), 50))
+    #game.timeBubbles.append(TimeBubble(5.0, Vector2(400, 500), 50))
 
     # set up pygame stuff
 
