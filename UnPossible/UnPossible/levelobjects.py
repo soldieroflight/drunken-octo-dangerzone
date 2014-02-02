@@ -1,9 +1,23 @@
 from baseobjects import *
 
 class Platform(PhysicalObject):
-    def __init__(self, pos=Vector2(0,0), width=0, height=0):
-        super().__init__(pos)
-        self.rigidbody = AABB(pos, width, height)
+    def __init__(self, topLeftPos=None, width=0, height=0, centerPos=None):
+        
+        
+        if ( centerPos == None ):
+            super().__init__(topLeftPos)
+            
+            convertedPos = Vector2( topLeftPos.x + width / 2, topLeftPos.y + height / 2 )
+            
+            #KEVIN MAKE ME BETTER PLEASE
+            guiltyHackPos = Vector2( convertedPos.x, 900 - convertedPos.y )
+            
+            self.rigidbody = AABB(guiltyHackPos, width, height)
+        
+        else:
+            super().__init__(centerPos)
+            self.rigidbody = AABB(centerPos, width, height)
+        
         self.rigidbody.owner = self
         self.rigidbody.useDynamics = False
         
