@@ -93,7 +93,7 @@ class Vector2(object):
         return other.scale((self * other) / (other * other))
         
     def safe_pos(self):
-        return (int(self.x), int(self.y))
+        return (int(round(self.x)), int(round(self.y)))
         
     def copy(self):
         return Vector2(self.x, self.y)
