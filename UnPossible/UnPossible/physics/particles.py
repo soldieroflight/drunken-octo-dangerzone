@@ -72,14 +72,14 @@ class Particle(object):
         
         self.dead = self.size <= 0
         
-    def draw(self, screen):
+    def draw(self, camera):
         if self.image:
             if self.size != self.lastSize:
                 self.scaledImage = pygame.transform.scale(self.image, (int(self.size), int(self.size)))
                 self.lastSize = self.size
-            screen.blit(self.scaledImage, pygame.Rect(self.pos.x, self.pos.y, self.size, self.size))
+            camera.blit(self.scaledImage, pygame.Rect(self.pos.x, self.pos.y, self.size, self.size))
         else:
-            pygame.draw.circle(screen, self.color, (int(self.pos.x), int(self.pos.y)), int(self.size))
+            camera.circle(self.color, (int(self.pos.x), int(self.pos.y)), int(self.size))
         
 class ParticleEmitter(object):
     def __init__(self, pos, description):
@@ -250,9 +250,9 @@ class ParticleEmitter(object):
                 self.emissionCounter -= 1
                 self.totalEmittedCount += 1
                 
-    def draw(self, screen):
+    def draw(self, camera):
         for particle in self.particles:
-            particle.draw(screen)
+            particle.draw(camera)
             
 class SurfaceShatterParticles(ParticleEmitter):
     def __init__(self, surface, position, description):

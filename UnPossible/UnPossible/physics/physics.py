@@ -12,8 +12,8 @@ class Collider(object):
             assert isinstance(point,Vector2)
         self.points = points
         
-    def draw(self,screen):
-        pygame.draw.polygon(screen, (180,180,180), [(p.x,p.y) for p in self.points])
+    def draw(self, camera):
+        camera.polygon((180,180,180), [(p.x,p.y) for p in self.points])
 
 class RigidBody(object):
     def __init__(self, pos, ivel=Vector2(0.0), rotation=0, mass=1):
@@ -111,7 +111,7 @@ class RigidBody(object):
                 self.angvel = self.angvel + self.torque*dt
                 self.angvel *= 0.99     
         
-def oobb_vs_oobb(box1, box2, screen):
+def oobb_vs_oobb(box1, box2, camera):
     bridge = box2.position - box1.position
     # first check if either of the A's axes form a separating axis
     axis = box1.up
@@ -210,8 +210,8 @@ def oobb_vs_oobb(box1, box2, screen):
                 box2.position -= colnormal.scale(mindiff/2.0)
                 box1.position += colnormal.scale(mindiff/2.0)
             
-        pygame.draw.circle(screen, (0,0,255), (int(colpoint.x), int(colpoint.y)), 5)
-        pygame.draw.line(screen, (255,255,0), (int(colpoint.x), int(colpoint.y)), (colpoint.x + colnormal.x*10, colpoint.y + colnormal.y*10), 4)
+        camera.circle((0,0,255), (int(colpoint.x), int(colpoint.y)), 5)
+        camera.line((255,255,0), (int(colpoint.x), int(colpoint.y)), (colpoint.x + colnormal.x*10, colpoint.y + colnormal.y*10), 4)
         test1 = box1.velocity.project_onto(colnormal)
         test2 = box2.velocity.project_onto(colnormal)
         type = test1 * test2
@@ -291,7 +291,7 @@ def oobb_vs_plane(box,plane):
     
     return bp
     
-def oobb_vs_collider(box, collider, screen):
+def oobb_vs_collider(box, collider, camera):
     assert isinstance(box,OOBB)
     assert isinstance(collider,Collider)
     
@@ -357,7 +357,7 @@ def oobb_vs_collider(box, collider, screen):
             col = col or scol
             
     if not ip is None:
-        pygame.draw.circle(screen, (255,255,0), (ip.x,ip.y), 6)
+        camera.circle((255,255,0), (ip.x,ip.y), 6)
         norm = Vector2((planeb.y-planea.y),-(planeb.x-planea.x)).normal()
         rotM = Matrix2D()
         rotM.rotate(90)

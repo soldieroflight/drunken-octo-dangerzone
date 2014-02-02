@@ -28,7 +28,7 @@ class AABB(RigidBody):
         return (point.x <= (self.position.x + self.halfvx.x)) and (point.x >= (self.position.x - self.halfvx.x)) and \
                (point.y <= (self.position.y + self.halfvy.y)) and (point.y >= (self.position.y - self.halfvy.y))
                
-    def draw(self, screen):
+    def draw(self, camera):
         topleft = self.position - self.halfvx - self.halfvy
         botleft = self.position - self.halfvx + self.halfvy
         topright = self.position + self.halfvx - self.halfvy
@@ -40,7 +40,7 @@ class AABB(RigidBody):
         points.append((botright.x, botright.y))
         points.append((topright.x, topright.y))
         
-        pygame.draw.lines(screen, (255,255,255), True, points, 3)
+        camera.lines((255,255,255), True, points, 3)
                
 class OOBB(RigidBody):
     def __init__(self,center=None,width=0.0,height=0.0,rotation=0.0):
@@ -95,7 +95,7 @@ class OOBB(RigidBody):
         self.up = rotM * up
         self.right = rotM * right
         
-    def draw(self,screen):
+    def draw(self, camera):
         vup = self.up.scale(self.halfh)
         vright = self.right.scale(self.halfw)
         
@@ -110,9 +110,9 @@ class OOBB(RigidBody):
         points.append((self.botright.x, self.botright.y))
         points.append((self.topright.x, self.topright.y))
         
-        pygame.draw.lines(screen, (255,255,255), True, points, 3)
+        camera.lines((255,255,255), True, points, 3)
         # pygame.draw.line(screen,(255,255,255),(self.position.x,self.position.y),(self.position.x+vright.x,self.position.y+vright.y),3)
-        pygame.draw.line(screen,(255,255,255),(self.position.x,self.position.y),(self.position.x+vup.x,self.position.y+vup.y),3)
+        camera.line((255,255,255),(self.position.x,self.position.y),(self.position.x+vup.x,self.position.y+vup.y),3)
         
 class Plane(object):
     def __init__(self, point, normal):
@@ -131,14 +131,14 @@ class Plane(object):
         rotM.rotate(90)
         return (rotM * self.normal).normal()
         
-    def draw(self,screen):
+    def draw(self, camera):
         rotM = Matrix2D()
         rotM.rotate(90.0)
         vright = rotM * self.normal
         
         start = self.point + (vright.scale(1000))
         end = self.point - (vright.scale(1000))
-        pygame.draw.line(screen,(255,255,255),(start.x,start.y),(end.x,end.y),3)
+        camera.line((255,255,255),(start.x,start.y),(end.x,end.y),3)
         
 class Sphere(RigidBody):
     def __init__(self, pos, radius=0, m=1):
@@ -151,12 +151,12 @@ class Sphere(RigidBody):
         return "Sphere at position (%.3f, %.3f)\n"%(self.position.x,self.position.y) + \
                 "\tRadius: %.3f\n"%self.radius
         
-    def draw(self,screen):
+    def draw(self, camera):
         up = Vector2(y=-1.0)
         rotM = Matrix2D()
         rotM.rotate(self.rotation)
         up = (rotM * up).normal()
         dir = up.scale(self.radius)
-        pygame.draw.circle(screen, (255,255,255), (self.position.x,self.position.y), self.radius, 3)
-        pygame.draw.line(screen, (255,255,255), (self.position.x,self.position.y), (self.position.x + dir.x,self.position.y + dir.y), 3)
+        camera.circle(screen, (255,255,255), (self.position.x,self.position.y), self.radius, 3)
+        camera.line(screen, (255,255,255), (self.position.x,self.position.y), (self.position.x + dir.x,self.position.y + dir.y), 3)
         

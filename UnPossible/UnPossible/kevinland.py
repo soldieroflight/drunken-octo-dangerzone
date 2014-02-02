@@ -3,6 +3,7 @@ import math, os, sys
 from physics.mathutils import *
 from physics.collisionutils import *
 from input import *
+from camera import *
 
 class GameObject(object):
     def __init__(self, pos=Vector2(0,0)):
@@ -67,8 +68,8 @@ class Player(PhysicalObject):
     def sync_transform(self):
         self.transform.set_translation(self.rigidbody.position)
          
-    def debug_draw(self, screen):
-        self.rigidbody.draw(screen)
+    def debug_draw(self, camera):
+        self.rigidbody.draw(camera)
         
         
 class Platform(PhysicalObject):
@@ -77,8 +78,8 @@ class Platform(PhysicalObject):
         self.rigidbody = AABB(pos, width, height)
         self.rigidbody.useDynamics = False
         
-    def debug_draw(self, screen):
-        self.rigidbody.draw(screen)
+    def debug_draw(self, camera):
+        self.rigidbody.draw(camera)
     
 
 if __name__ == "__main__":
@@ -93,6 +94,7 @@ if __name__ == "__main__":
     # set up pygame stuff
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
+    camera = Camera(Vector2(640, 480), Vector2(800, 600), screen)
     
     ground = Plane(Vector2(240, 450), Vector2(0.0, -1.0))
     
@@ -120,15 +122,16 @@ if __name__ == "__main__":
         deltaTime = clock.get_time()/1000.0
                 
         player.update(deltaTime)
+        camera.update(player.rigidbody.position)
         
         aabb_vs_plane(player.rigidbody, ground)
         for platform in platforms:
             aabb_vs_aabb(player.rigidbody, platform.rigidbody)
         
-        player.debug_draw(screen)
+        player.debug_draw(camera)
         for platform in platforms:
-            platform.debug_draw(screen)
-        ground.draw(screen)
+            platform.debug_draw(camera)
+        ground.draw(camera)
         
         pygame.display.update()
         ticks = pygame.time.get_ticks() - t

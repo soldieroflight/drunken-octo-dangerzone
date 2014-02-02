@@ -74,7 +74,7 @@ class Link(Endpoint):
     def setTimeModifier(self, newTimeModifier):
         self.timeModifier = newTimeModifier
 
-    def draw(self, screen):
+    def draw(self, camera):
         pairs = []
         lastPoint = None
         totalLength = 0.0
@@ -86,17 +86,17 @@ class Link(Endpoint):
 
         drawnLength = 0
         for pair in pairs:
-            pygame.draw.line(screen, (0, 255, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
+            camera.line((0, 255, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
 
         for pair in pairs:
             thisLength = mathutils.dist(pair[0], pair[1])
             if thisLength + drawnLength > totalLength * self.progress:
                 toDraw = (totalLength * self.progress - drawnLength)
                 endpoint = pair[0] + (pair[1] - pair[0]).normal().scale(toDraw)
-                pygame.draw.line(screen, (255, 0, 0), (pair[0].x, pair[0].y), (endpoint.x, endpoint.y))
+                camera.line((255, 0, 0), (pair[0].x, pair[0].y), (endpoint.x, endpoint.y))
                 break
             else:
-                pygame.draw.line(screen, (255, 0, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
+                camera.line((255, 0, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
                 drawnLength += thisLength
 
-        self.particles.draw(screen)
+        self.particles.draw(camera)

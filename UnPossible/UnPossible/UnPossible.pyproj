@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>accb0698-b997-4046-b4cf-42e7f00b9f7f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>UnPossible.py</StartupFile>
+    <StartupFile>kevinland.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,9 +25,13 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="camera.py" />
     <Compile Include="events\endpoint.py" />
     <Compile Include="events\link.py" />
     <Compile Include="events\__init__.py" />
+    <Compile Include="input\keyboard.py" />
+    <Compile Include="input\keymappings.py" />
+    <Compile Include="input\__init__.py" />
     <Compile Include="kevinland.py" />
     <Compile Include="physics\particles.py" />
     <Compile Include="physics\collisionutils.py" />
@@ -39,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="events\" />
+    <Folder Include="input\" />
     <Folder Include="physics\" />
   </ItemGroup>
   <ItemGroup>
