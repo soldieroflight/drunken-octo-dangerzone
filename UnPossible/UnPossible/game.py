@@ -41,10 +41,8 @@ class Game(object):
         self.camera = Camera(Vector2(640, 480), self.level.worldSize, self.screen)
     
         self.enemies.extend(level.enemies)
-        
-        self.enemies.append( BaseEnemy( Vector2( 300, 450 ) ) )
-        self.enemies.append( PatrollingEnemy( Vector2( 600, 450 ), [ Vector2( 600, 450 ), Vector2( 800, 450 ) ] ) )
-
+        #self.enemies.append( BaseEnemy( Vector2( 300, 400 ) ) )
+        #self.enemies.append( PatrollingEnemy( Vector2( 600, 400 ), [ Vector2( 600, 400 ), Vector2( 800, 400 ) ] ) )
         
         self.switches.extend(level.switches)
         self.links.extend(level.links)

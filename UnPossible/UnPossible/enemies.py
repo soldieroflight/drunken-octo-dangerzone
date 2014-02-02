@@ -17,6 +17,7 @@ class BaseEnemy( PhysicalObject ):
         super().__init__( pos )
         
         self.rigidbody = AABB( pos, DEFAULT_ENEMY_WIDTH, DEFAULT_ENEMY_HEIGHT )
+        self.rigidbody.useDynamics = False
         self.rigidbody.callback = self.on_collision
         
         self.state = IDLE
@@ -25,23 +26,26 @@ class BaseEnemy( PhysicalObject ):
         self.damage = 0
         
     def update( self, deltaTime ):
-        dt = self.scaleTime( deltaTime )
-    
         if self.damage >= self.maxHP:
             self.setState( DEAD )
             
-        self.rigidbody.update( dt )
+        # print( self.rigidbody.forces )
+        # print( self.rigidbody.backForces )
+        # print( self.rigidbody.accel() )
+        # print( self.rigidbody.velocity )
+        self.rigidbody.update( deltaTime, True )        
         
-    def scaleTime( self, deltaTime ):
-        return deltaTime * self.timeScale
-        
-    def move( self, movementVector ):
-        self.transform.translate( movementVector )
-        self.rigidbody.position = self.transform.get_translation()
         self.rigidbody.clear_forces()
         
-    def on_collision( self, other ):
+    def move( self, movementVector ):
         pass
+        # self.transform.translate( movementVector )
+        # self.rigidbody.position = self.transform.get_translation()
+        # self.rigidbody.clear_forces()
+        
+    def on_collision( self, other ):
+        print( "ow" )
+        return True
         
     def debug_draw( self, camera ):
         self.rigidbody.draw( camera )
@@ -58,23 +62,21 @@ class PatrollingEnemy( BaseEnemy ):
     def update( self, deltaTime ):
         super().update( deltaTime )
         
-        dt = self.scaleTime( deltaTime )
-        
         if self.state == IDLE:
-            self.patrol( dt )
+            self.patrol( deltaTime )
         
-    def patrol( self, dt ):
+    def patrol( self, deltaTime ):
         if self.rigidbody.position.approximately( self.patrolPoints[ self.curPatrolPointIdx ] ):
-            self.waitTimer += dt
+            self.waitTimer += deltaTime
             if self.waitTimer >= self.timeToWaitAtPoint:
                 self.waitTimer = 0
                 self.curPatrolPointIdx = ( self.curPatrolPointIdx + 1 ) % len( self.patrolPoints )
             return;
             
         targetPos = self.patrolPoints[ self.curPatrolPointIdx ]
-        movementVector = self.rigidbody.position - targetPos
+        movementVector = targetPos - self.rigidbody.position
         movementVector.normalize()
-        movementVector.scale( self.speed * dt )
+        movementVector.scale( self.speed * deltaTime )
         self.move( movementVector )
             
             

@@ -77,7 +77,12 @@ class RigidBody(object):
     def clear_torque(self):
         self.torque = 0.0
         
-    def update(self, dt):
+    def update(self, dt, verbose = False):
+    
+        if verbose:
+            #print( self.accel() )
+            print( self.velocity )
+    
         for force in self.backForces:
             self.add_force(force)
         self.backForces = []
@@ -107,6 +112,11 @@ class RigidBody(object):
             self.position.y += (dt/6.0)*(vy1 + 2*vy2 + 2*vy3 + vy4)
             self.velocity.x += (dt/6.0)*(ax1 + 2*ax2 + 2*ax3 + ax4)
             self.velocity.y += (dt/6.0)*(ay1 + 2*ay2 + 2*ay3 + ay4)
+            
+            if verbose:
+                print ( self.velocity )
+                print ( "----" )
+            
             # ###########################################################
             
             if self.useRotation:
