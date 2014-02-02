@@ -16,8 +16,10 @@ import random
 #
 #    emitterArea = 1 is the radius of the particle spawning area
 #    emitterRange = 0 is the outward percentage of the radius to use: 0 means use everything, 1 means spawn on the rim, 0.5 is spawn in the outer half of the ring
-#    color = (255, 0, 0) is a tuple of RGB and will be used to draw a circle if no image is given
+#    colors = [(255, 0, 0)] is a tuple of RGB and will be used to draw a circle if no image is given
 #    image = None is a filename to load
+#    movementFrame = 'independent'
+#    The movementFrame can be either 'independent' (particles use world coordinates), 'inherited' (particles inherit velocity), or 'attached' (particles use emitter frame)
 #
 #Per emitter per second:
 #    minEmitRate = 1 and maxEmitRate = 1 is how many particles per second
@@ -36,7 +38,8 @@ import random
 #        1 damping means don't do anything, > 1 is speed up (increase energy), < 1 is decrease energy (don't use negatives)
 
 class Particle(object):
-    def __init__(self, pos, color, size, vel, force, randForce, damping, lifetime, sizeChange, image):
+    def __init__(self, emitter, pos, color, size, vel, force, randForce, damping, lifetime, sizeChange, image, movementFrame):
+        self.emitter = emitter
         self.pos = pos
         self.color = color
         self.size = size
@@ -48,16 +51,27 @@ class Particle(object):
         self.sizeChange = sizeChange
         self.image = image
         self.scaledImage = image
+        self.attached = (movementFrame == 'attached')
+
+        if movementFrame == 'inherited':
+            self.vel += emitter.vel
         
         self.lastSize = 0
         
         self.dead = False
         self.currentLifetime = 0
         
-    def update(self, time):
+    def update(self, time, timeBubbles):
         if self.dead:
             return
         
+        pos = self.pos
+        if self.attached:
+            pos += self.emitter.pos
+        for bubble in timeBubbles:
+            if bubble.contains(pos):
+                time *= bubble.timeScale
+
         self.currentLifetime += time
         if self.currentLifetime > self.lifetime:
             self.dead = True
@@ -73,13 +87,16 @@ class Particle(object):
         self.dead = self.size <= 0
         
     def draw(self, camera):
+        pos = self.pos
+        if self.attached:
+            pos += self.emitter.pos
         if self.image:
             if self.size != self.lastSize:
                 self.scaledImage = pygame.transform.scale(self.image, (int(self.size), int(self.size)))
                 self.lastSize = self.size
-            camera.blit(self.scaledImage, pygame.Rect(self.pos.x, self.pos.y, self.size, self.size))
+            camera.blit(self.scaledImage, pygame.Rect(pos.x, pos.y, self.size, self.size))
         else:
-            camera.circle(self.color, (int(self.pos.x), int(self.pos.y)), int(self.size))
+            camera.circle(self.color, (int(pos.x), int(pos.y)), int(self.size))
         
 class ParticleEmitter(object):
     def __init__(self, pos, description):
@@ -90,6 +107,8 @@ class ParticleEmitter(object):
         self.totalEmittedTime = 0
         self.emissionCounter = 0
         self.paused = False
+        self.vel = 0
+        self.lastPos = pos
         
         if 'minSize' in description:
             self.minSize = description['minSize']
@@ -127,6 +146,12 @@ class ParticleEmitter(object):
             self.lifetimeType = description['lifetimeType']
         else:
             self.lifetimeType = 'forever'
+
+        if 'movementFrame' in description:
+            self.movementFrame = description['movementFrame']
+        else:
+            self.movementFrame = 'independent'
+
         if 'emitterMinLifetime' in description:
             self.emitterMinLifetime = description['emitterMinLifetime']
         else:
@@ -224,7 +249,8 @@ class ParticleEmitter(object):
         theta = random.uniform(0, 2 * math.pi)
         pos = Vector2(math.cos(theta), math.sin(theta)).scale(scaledSize)
         posNormalized = pos.normal()
-        pos += self.pos
+        if self.movementFrame != 'attached':
+            pos += self.pos
         
         vel = self.velocity + \
             self.randomVelocity.scale(Vector2(random.uniform(-1, 1), random.uniform(-1, 1))) + \
@@ -232,15 +258,22 @@ class ParticleEmitter(object):
         
         lifetime = random.uniform(self.minLifetime, self.maxLifetime)
         size = random.uniform(self.minSize, self.maxSize)
-        self.particles.append(Particle(pos, random.choice(self.colors), size, vel, self.force, self.randomForce, self.damping, lifetime, self.sizeChange, random.choice(self.images)))
+        self.particles.append(Particle(self, pos, random.choice(self.colors), size, vel, self.force, self.randomForce, self.damping, lifetime, self.sizeChange, random.choice(self.images), self.movementFrame))
             
-    def update(self, time):
+    def update(self, time, timeBubbles):
         for particle in self.particles:
-            particle.update(time)
+            particle.update(time, timeBubbles)
             if particle.dead:
                 self.particles.remove(particle)
                 
         if self.isEmitting():
+            for bubble in timeBubbles:
+                if bubble.contains(self.pos):
+                    time *= bubble.timeScale
+
+            self.vel = (self.pos - self.lastPos).scale(1/time)
+            self.lastPos = self.pos
+
             self.totalEmittedTime += time
             self.emissionCounter += random.uniform(self.minEmitRate, self.maxEmitRate) * time
             numNewParticles = int(self.emissionCounter)
@@ -282,7 +315,7 @@ class SurfaceShatterParticles(ParticleEmitter):
             lifetime = random.uniform(self.minLifetime, self.maxLifetime)
             
             pos = positions[i] + position
-            self.particles.append(Particle(pos, (0,0,0), size, vel, self.force, self.randomForce, self.damping, lifetime, self.sizeChange, surfs[i]))
+            self.particles.append(Particle(self, pos, (0,0,0), size, vel, self.force, self.randomForce, self.damping, lifetime, self.sizeChange, surfs[i], self.movementFrame))
             
         self.stop()
         self.exploded = False
@@ -292,7 +325,7 @@ class SurfaceShatterParticles(ParticleEmitter):
         
     def update(self, dt):
         if not self.exploded: return
-        ParticleEmitter.update(self, dt)
+        ParticleEmitter.update(self, dt, [])
             
             
 if __name__ == '__main__':
