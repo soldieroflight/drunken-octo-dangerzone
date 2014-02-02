@@ -18,7 +18,7 @@ class Camera(object):
 
     def update(self, playerPos):
         assert isinstance(playerPos, Vector2)
-        self.rect.bottom = min(self.worldSize.y, playerPos.y + self.rect.height / 3.0)
+        self.rect.bottom = min(self.worldSize.y, playerPos.y + self.rect.height * 0.8)
         self.rect.centerx = playerPos.x
         self.rect.right = min(self.worldSize.x, self.rect.right)
         self.rect.left = max(0, self.rect.left)

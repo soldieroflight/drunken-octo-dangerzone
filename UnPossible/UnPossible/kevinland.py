@@ -39,6 +39,10 @@ class Projectile(PhysicalObject):
         self.rigidbody = AABB(pos, self.radius, self.radius)
         self.initialSpeed = 500
         self.rigidbody.velocity = Vector2(dir.x * self.initialSpeed, dir.y)
+        self.rigidbody.callback = self.on_collision
+        self.rigidbody.owner = self
+        # Checked externally for cleanup.
+        self.expired = False
         
     def update(self, deltaTime):
         super().update(deltaTime)
@@ -48,6 +52,9 @@ class Projectile(PhysicalObject):
         
     def debug_draw(self, camera):
         camera.circle((255,255,255), self.rigidbody.position.safe_pos(), self.radius)
+        
+    def on_collision(self, other):
+        self.expired = True
     
         
 class Player(PhysicalObject):
@@ -55,8 +62,9 @@ class Player(PhysicalObject):
         super().__init__(pos)
         self.keyListener = keyboard.Keyboard()
         self.rigidbody = AABB(pos, 30, 60)
+        self.rigidbody.owner = self
         self.speed = 120.0 # units/second
-        self.jumpForce = Vector2(0.0, -20000.0)
+        self.jumpForce = Vector2(0.0, -35000.0)
         self.gravity = Vector2(0.0, 980.0)
         self.facing = 1.0
         
@@ -105,6 +113,7 @@ class Platform(PhysicalObject):
     def __init__(self, pos=Vector2(0,0), width=0, height=0):
         super().__init__(pos)
         self.rigidbody = AABB(pos, width, height)
+        self.rigidbody.owner = self
         self.rigidbody.useDynamics = False
         
     def debug_draw(self, camera):
@@ -127,12 +136,8 @@ if __name__ == "__main__":
     camera = Camera(Vector2(640, 480), Vector2(800, 600), screen)
     
     ground = Plane(Vector2(240, 450), Vector2(0.0, -1.0))
-    
-    # Reasonable initial dt.
-    ticks = 16
 
     while True:
-        t = pygame.time.get_ticks()
         clock.tick(60)
         screen.fill((0,0,0))
         
@@ -146,9 +151,6 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
                 
-        if ticks < 1:
-            ticks = 16
-        ticks = 1.0/ticks
         deltaTime = clock.get_time()/1000.0
                 
         player.update(deltaTime)
@@ -156,9 +158,17 @@ if __name__ == "__main__":
             proj.update(deltaTime)
         camera.update(player.rigidbody.position)
         
-        aabb_vs_plane(player.rigidbody, ground)
+        test_collision(player.rigidbody, ground)
         for platform in platforms:
-            aabb_vs_aabb(player.rigidbody, platform.rigidbody)
+            test_collision(player.rigidbody, platform.rigidbody)
+            
+        for proj in globalProjectiles:
+            for platform in platforms:
+                test_collision(proj.rigidbody, platform.rigidbody)
+            test_collision(proj.rigidbody, ground)
+            if proj.expired:
+                globalProjectiles.remove(proj)
+                del proj
         
         player.sync_transform()
 
@@ -171,4 +181,3 @@ if __name__ == "__main__":
             proj.debug_draw(camera)
         
         pygame.display.update()
-        ticks = pygame.time.get_ticks() - t

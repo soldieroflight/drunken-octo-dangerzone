@@ -34,6 +34,10 @@ class RigidBody(object):
         self.cof = 0.7
         self.grounded = False
         
+        # External hooks. Owner should be set to the object that owns the rigid body.
+        self.callback = None
+        self.owner = None
+        
         # various control values
         self.useRotation = True
         self.useDynamics = True
@@ -109,9 +113,9 @@ class RigidBody(object):
                 # self.rotation = self.rotation + self.angvel*dt
                 self.rotate(self.angvel*dt)
                 self.angvel = self.angvel + self.torque*dt
-                self.angvel *= 0.99     
+                self.angvel *= 0.99
         
-def oobb_vs_oobb(box1, box2, camera):
+def oobb_vs_oobb(box1, box2):
     bridge = box2.position - box1.position
     # first check if either of the A's axes form a separating axis
     axis = box1.up
@@ -210,8 +214,8 @@ def oobb_vs_oobb(box1, box2, camera):
                 box2.position -= colnormal.scale(mindiff/2.0)
                 box1.position += colnormal.scale(mindiff/2.0)
             
-        camera.circle((0,0,255), (int(colpoint.x), int(colpoint.y)), 5)
-        camera.line((255,255,0), (int(colpoint.x), int(colpoint.y)), (colpoint.x + colnormal.x*10, colpoint.y + colnormal.y*10), 4)
+        # camera.circle((0,0,255), (int(colpoint.x), int(colpoint.y)), 5)
+        # camera.line((255,255,0), (int(colpoint.x), int(colpoint.y)), (colpoint.x + colnormal.x*10, colpoint.y + colnormal.y*10), 4)
         test1 = box1.velocity.project_onto(colnormal)
         test2 = box2.velocity.project_onto(colnormal)
         type = test1 * test2
@@ -243,6 +247,11 @@ def oobb_vs_oobb(box1, box2, camera):
         # angular velocity impulses
         box1.angvel = box1.angvel + (rap.perpendicular() * colnormal.scale(impulse/box1.mass)) # / inertial tensor of A
         box2.angvel = box2.angvel - (rbp.perpendicular() * colnormal.scale(impulse/box2.mass)) # / inertial tensor of B
+        
+        if not box1.callback is None:
+            box1.callback(box2)
+        if not box2.callback is None:
+            box2.callback(box1)
         return True
     
     return False
@@ -288,10 +297,13 @@ def oobb_vs_plane(box,plane):
         
         # do this only in contact situation
         # box.backTorque += (box.position - corners[0]).project_onto(plane.right()).smag()
+        
+        if not box1.callback is None:
+            box1.callback(plane)
     
     return bp
     
-def oobb_vs_collider(box, collider, camera):
+def oobb_vs_collider(box, collider):
     assert isinstance(box,OOBB)
     assert isinstance(collider,Collider)
     
@@ -357,7 +369,7 @@ def oobb_vs_collider(box, collider, camera):
             col = col or scol
             
     if not ip is None:
-        camera.circle((255,255,0), (ip.x,ip.y), 6)
+        # camera.circle((255,255,0), (ip.x,ip.y), 6)
         norm = Vector2((planeb.y-planea.y),-(planeb.x-planea.x)).normal()
         rotM = Matrix2D()
         rotM.rotate(90)
@@ -392,6 +404,9 @@ def oobb_vs_collider(box, collider, camera):
         
         box.velocity += colnormal.scale(box.velocity.scale(0.2).mag()).project_onto(right)
         box.angvel = (rp * colnormal.scale(impulse/box.mass))
+        
+        if not box.callback is None:
+            box.callback(collider)
         
     
     return col
@@ -430,6 +445,11 @@ def sphere_vs_sphere(sphere1,sphere2):
         sphere1.angvel = ((s1avel - s2avel) * sphere1.cof) / sphere1.mass # inertial tensor of sphere 1
         sphere2.angvel = ((s2avel - s1avel) * sphere2.cof) / sphere2.mass # inertial tensor of sphere 2
         
+        if not sphere1.callback is None:
+            sphere1.callback(sphere2)
+        if not sphere2.callback is None:
+            sphere2.callback(sphere1)
+        
         return True
     return False
     
@@ -450,6 +470,9 @@ def sphere_vs_plane(sphere,plane):
         # angular velocity equations
         xvel = sphere.velocity * plane.right()
         sphere.angvel = xvel * plane.cof
+        
+        if not sphere.callback is None:
+            sphere.callback(plane)
         
         return True
     return False
@@ -488,6 +511,11 @@ def aabb_vs_aabb(box1, box2):
                     box1.velocity.y = 0
         else:
             pass # TODO: Both are dynamic
+            
+        if not box1.callback is None:
+            box1.callback(box2)
+        if not box2.callback is None:
+            box2.callback(box1)
     
 def aabb_vs_plane(box, plane):
     dist = (box.position - plane.point).project_onto(plane.normal).mag()
@@ -502,6 +530,9 @@ def aabb_vs_plane(box, plane):
         
         if plane.normal.y < -0.5: # testing against a ground plane, do grounded checks
             box.grounded = True
+            
+        if not box.callback is None:
+            box.callback(plane)
     elif plane.normal.y < -0.5:
         box.grounded = False
     # if math.fabs(diff) < 1 and plane.normal.y < -0.5:

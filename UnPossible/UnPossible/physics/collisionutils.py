@@ -160,3 +160,21 @@ class Sphere(RigidBody):
         camera.circle(screen, (255,255,255), (self.position.x,self.position.y), self.radius, 3)
         camera.line(screen, (255,255,255), (self.position.x,self.position.y), (self.position.x + dir.x,self.position.y + dir.y), 3)
         
+def test_collision(obj1, obj2):
+    if isinstance(obj1, AABB):
+        if isinstance(obj2, AABB):
+            aabb_vs_aabb(obj1, obj2)
+        if isinstance(obj2, Plane):
+            aabb_vs_plane(obj1, obj2)
+    if isinstance(obj1, OOBB):
+        if isinstance(obj2, OOBB):
+            oobb_vs_oobb(obj1, obj2)
+        if isinstance(obj2, Plane):
+            oobb_vs_plane(obj1, obj2)
+    if isinstance(obj1, Plane):
+        if isinstance(obj2, AABB):
+            aabb_vs_plane(obj2, obj1)
+        if isinstance(obj2, OOBB):
+            oobb_vs_plane(obj2, obj1)
+    # TODO: Spheres
+        
