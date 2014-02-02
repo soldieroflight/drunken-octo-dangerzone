@@ -15,6 +15,7 @@ class Game(object):
         self.updatable = []
         self.everything = []
         self.timeBubbles = []
+        self.particles = []
         self.player = None
         self.screen = screen
 
@@ -53,29 +54,34 @@ class Game(object):
         self.updatable.extend(self.switches)
         self.updatable.extend(self.links)
 
+        self.particles.extend([x.particles for x in self.links])
+
         self.everything.extend(self.solids)
         self.everything.append(self.player)
         self.everything.extend(self.switches)
         self.everything.extend(self.links)
+        self.everything.extend(self.timeBubbles)
 
     def update(self, deltaTime):
-        # Check for things in the time bubbles.
-        for bubble in self.timeBubbles:
-            for obj in self.updatable:
-                if test_collision(obj, bubble):
-                    obj.timeScale *= bubble.timeScale
-            for obj in self.updatable:
-                if test_collision(obj, bubble):
-                    obj.timeScale *= bubble.timeScale
-                
         # Update pass.
         for obj in self.updatable:
-            obj.update(deltaTime)
+            localTime = deltaTime
+            for bubble in self.timeBubbles:
+                if test_collision(obj.rigidbody, bubble.rigidbody):
+                    localTime *= bubble.timeScale
+            obj.update(localTime)
         for proj in self.projectiles:
-            proj.update(deltaTime)
+            localTime = deltaTime
+            for bubble in self.timeBubbles:
+                if test_collision(proj.rigidbody, bubble.rigidbody):
+                    localTime *= bubble.timeScale
+            proj.update(localTime)
+
         # Particle update.
-        for link in self.links:
-            link.update_particles(deltaTime, self.timeBubbles)
+        for particles in self.particles:
+            particles.update(deltaTime, self.timeBubbles)
+            if not particles.isAlive():
+                self.particles.remove(particles)
 
         # Collision pass.
         for obj in self.solids:
@@ -92,7 +98,8 @@ class Game(object):
         # Post-update cleanup.
         for obj in self.updatable:
             obj.sync_transform()
-            obj.clear_timescale()
+        for proj in self.projectiles:
+            proj.sync_transform()
 
         # Camera pass.
         self.camera.update(self.player.rigidbody.position)
@@ -105,6 +112,9 @@ class Game(object):
         
         for proj in self.projectiles:
             proj.debug_draw(self.camera)
+
+        for particles in self.particles:
+            particles.draw(self.camera)
 
         for bubble in self.timeBubbles:
             bubble.debug_draw(self.camera)

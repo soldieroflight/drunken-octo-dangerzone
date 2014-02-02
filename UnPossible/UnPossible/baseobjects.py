@@ -13,18 +13,13 @@ class GameObject(object):
         self.transform = Matrix2D()
         self.parent = None
         self.setup(pos)
-        self.timeScale = 1.0
         
     def setup(self, pos):
         self.transform.translate_x(pos.x)
         self.transform.translate_y(pos.y)
         
     def update(self, deltaTime):
-        # Local time dilation.
-        deltaTime *= self.timeScale
-        
-    def clear_timescale(self):
-        self.timeScale = 1.0
+        pass
         
     def sync_transform(self):
         pass
@@ -63,3 +58,4 @@ class Projectile(PhysicalObject):
         
     def on_collision(self, other):
         self.expired = True
+        return False

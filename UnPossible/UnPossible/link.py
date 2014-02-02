@@ -1,6 +1,6 @@
 import pygame
 from endpoint import *
-from physics import particles, mathutils
+from physics import particles, mathutils, collisionutils
 from physics.mathutils import Vector2
 
 class Link(Endpoint):
@@ -10,6 +10,10 @@ class Link(Endpoint):
         super().__init__()
         self.targets = targets
         self.path = path
+        # For collision with time bubbles.  Simple sphere to mark activation point.
+        self.rigidbody = collisionutils.Sphere(Vector2(0,0), 1)
+        self.rigidbody.solid = False
+        self.rigidbody.owner = self
         self.progress = 0.0
         self.activationTime = activationTime
         self.active = False
@@ -57,16 +61,14 @@ class Link(Endpoint):
         super().update(deltaTime)
         if self.active:
             activationPoint = self.getActivationPoint()
+            self.rigidbody.position = activationPoint
             self.particles.pos = activationPoint
 
-            self.progress += (deltaTime / self.activationTime * self.timeScale)
+            self.progress += (deltaTime / self.activationTime)
             if self.progress >= 1.0:
                 self.reset()
                 for target in self.targets:
                     target.trigger()
-        
-    def update_particles(self, deltaTime, timeBubbles):
-        self.particles.update(deltaTime * self.timeScale, timeBubbles)
 
     def reset(self):
         """Automatically resets itself after activation"""
@@ -74,6 +76,10 @@ class Link(Endpoint):
         self.active = False
         self.progress = 0.0
         self.particles.pause()
+        
+    def sync_transform(self):
+        super().sync_transform()
+        self.rigidbody.position = self.getActivationPoint()
 
     def debug_draw(self, camera):
         self.draw(camera)
@@ -102,5 +108,3 @@ class Link(Endpoint):
             else:
                 camera.line((255, 0, 0), (pair[0].x, pair[0].y), (pair[1].x, pair[1].y))
                 drawnLength += thisLength
-
-        self.particles.draw(camera)

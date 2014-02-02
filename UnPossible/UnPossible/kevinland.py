@@ -16,13 +16,13 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
 
-    level = PlatformTest()
+    level = TestLevel()
     game = Game(screen)
     game.load_level(level)
 
     game.camera.debug_set_background((700, 500))
 
-    #game.timeBubbles.append(TimeBubble(5.0, Vector2(400, 500), 50))
+    game.timeBubbles.append(TimeBubble(0.5, Vector2(400, 500), 50))
 
     # set up pygame stuff
 
