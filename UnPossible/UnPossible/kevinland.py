@@ -41,7 +41,8 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
                 
-        deltaTime = clock.get_time()/1000.0
+        # get and cap deltaTime
+        deltaTime = min( clock.get_time()/1000.0, 0.1 )
                 
         game.update(deltaTime)
         game.draw()

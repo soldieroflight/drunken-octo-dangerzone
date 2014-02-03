@@ -33,6 +33,7 @@ class TimeBubble(PhysicalObject):
         self.radius = radius
         self.lifetime = lifetime
         self.dead = False
+        self.damageDone = 0 #time bubbles do not hurt
 
     def update(self, deltaTime):
         if self.lifetime > 0:

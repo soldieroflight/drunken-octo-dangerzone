@@ -64,11 +64,13 @@ class BaseEnemy( PhysicalObject ):
         return True
         
     def hurt( self, damage ):
+        if damage == 0:
+            return
         self.damageTaken += damage
         self.debugDrawHurtColor = 0
         
     def debug_draw( self, camera ):
-        if self.debugDrawHurtColor < DEBUG_DRAW_HURT_FRAMES:
+        if self.debugDrawHurtColor < DEBUG_DRAW_HURT_FRAMES or self.state == DEAD:
             self.rigidbody.draw( camera, (0, 0, 255) )
             self.debugDrawHurtColor += 1
         else:
@@ -104,8 +106,10 @@ class PatrollingEnemy( BaseEnemy ):
             
         targetPos = self.patrolPoints[ self.curPatrolPointIdx ]
         movementVector = targetPos - self.rigidbody.position
+        distanceToTarget = movementVector.mag()
+        distanceToMove = min( self.speed * deltaTime, distanceToTarget )
         movementVector.normalize()
-        movementVector.scale( self.speed * deltaTime )
+        movementVector = movementVector.scale( distanceToMove )
         self.move( movementVector )
             
             

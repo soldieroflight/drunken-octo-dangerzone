@@ -51,7 +51,7 @@ class Projectile(PhysicalObject):
         self.rigidbody.owner = self
         # Checked externally for cleanup.
         self.expired = False
-        self.damageDone = 1 #TODO - change for different types of projectiles
+        self.damageDone = 1 #TODO - change for different types of projectiles. do we want to default to 0?
         
     def update(self, deltaTime):
         super().update(deltaTime)

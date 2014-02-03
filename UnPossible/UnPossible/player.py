@@ -42,7 +42,7 @@ class Player(PhysicalObject):
         self.invincibilityTime = INVINCIBILITY_AFTER_HIT_TIME
         self.invincibilityTimer = self.invincibilityTime
         
-        self.debugName = "Player"
+        self.debugName = "Widget"
         
     def update(self, deltaTime):
         super().update(deltaTime)
@@ -112,6 +112,9 @@ class Player(PhysicalObject):
         
         # Handle firing of projectiles.
         if (self.keyListener.get_key_just_pressed('f')):
+            proj = Projectile(self.transform.get_translation().copy(), Vector2(self.facing, 0.0))
+            self.game.projectiles.append(proj)
+        if (self.keyListener.get_key_just_pressed('e')):
             proj = TimeProjectile(self.game, 0.2, self.transform.get_translation().copy(), Vector2(self.facing, 0.0), 100)
             self.game.projectiles.append(proj)
 

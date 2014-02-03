@@ -88,10 +88,16 @@ class Level1(Level):
         basicEnemy = BaseEnemy( Vector2( 300, 730 ) )
         basicEnemy.debugName = "Steve"
         self.enemies.append( basicEnemy )
+        
         patrollingEnemy = PatrollingEnemy( Vector2( 600, 680 ), [ Vector2( 600, 680 ), Vector2( 800, 680 ) ] )
         patrollingEnemy.debugName = "Wanda"
         self.enemies.append( patrollingEnemy )
         
+        hoverPatrolPoints = [ Vector2(1100, 400), Vector2(1400, 400), Vector2(1500, 500), Vector2(1200, 500) ]
+        hoveringEnemy = PatrollingEnemy( hoverPatrolPoints[ 0 ], hoverPatrolPoints )
+        hoveringEnemy.debugName = "hoverbot9000"
+        hoveringEnemy.speed = 150.0
+        self.enemies.append( hoveringEnemy )
         
         
         
