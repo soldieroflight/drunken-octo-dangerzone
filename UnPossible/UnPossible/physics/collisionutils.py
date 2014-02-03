@@ -28,7 +28,7 @@ class AABB(RigidBody):
         return (point.x <= (self.position.x + self.halfvx.x)) and (point.x >= (self.position.x - self.halfvx.x)) and \
                (point.y <= (self.position.y + self.halfvy.y)) and (point.y >= (self.position.y - self.halfvy.y))
                
-    def draw(self, camera):
+    def draw(self, camera, color=(255,255,255)):
         topleft = self.position - self.halfvx - self.halfvy
         botleft = self.position - self.halfvx + self.halfvy
         topright = self.position + self.halfvx - self.halfvy
@@ -40,7 +40,7 @@ class AABB(RigidBody):
         points.append((botright.x, botright.y))
         points.append((topright.x, topright.y))
         
-        camera.lines((255,255,255), True, points, 3)
+        camera.lines(color, True, points, 3)
                
 class OOBB(RigidBody):
     def __init__(self,center=None,width=0.0,height=0.0,rotation=0.0):

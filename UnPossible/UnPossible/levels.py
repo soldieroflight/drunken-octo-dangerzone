@@ -1,5 +1,6 @@
 from levelobjects import *
 from baselevel import *
+from enemies import *
 from floorswitch import *
 from link import *
 
@@ -83,6 +84,14 @@ class Level1(Level):
         self.platforms.append(Platform(Vector2(5600, 100), 400, 300))
         self.platforms.append(Platform(Vector2(5850, 425), 100, 175)) #Moving Platform 4
         self.platforms.append(Platform(Vector2(6000, 100), 150, 500)) #Moving Platform 4
+        
+        basicEnemy = BaseEnemy( Vector2( 300, 730 ) )
+        basicEnemy.debugName = "Steve"
+        self.enemies.append( basicEnemy )
+        patrollingEnemy = PatrollingEnemy( Vector2( 600, 680 ), [ Vector2( 600, 680 ), Vector2( 800, 680 ) ] )
+        patrollingEnemy.debugName = "Wanda"
+        self.enemies.append( patrollingEnemy )
+        
         
         
         
