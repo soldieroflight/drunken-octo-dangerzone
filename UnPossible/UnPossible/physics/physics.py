@@ -23,7 +23,7 @@ class RigidBody(object):
         # various physics values
         self.position = pos
         self.rotation = rotation
-        self.velocity = ivel
+        self.velocity = ivel.copy()
         self.forces = []
         self.backForces = []
         self.acceleration = Vector2(0.0,0.0)

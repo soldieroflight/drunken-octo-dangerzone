@@ -17,7 +17,6 @@ class BaseEnemy( PhysicalObject ):
         super().__init__( pos )
         
         self.rigidbody = AABB( pos, DEFAULT_ENEMY_WIDTH, DEFAULT_ENEMY_HEIGHT )
-        self.rigidbody.useDynamics = False
         self.rigidbody.callback = self.on_collision
         
         self.state = IDLE
@@ -33,7 +32,7 @@ class BaseEnemy( PhysicalObject ):
         # print( self.rigidbody.backForces )
         # print( self.rigidbody.accel() )
         # print( self.rigidbody.velocity )
-        self.rigidbody.update( deltaTime, True )        
+        self.rigidbody.update( deltaTime )
         
         self.rigidbody.clear_forces()
         
