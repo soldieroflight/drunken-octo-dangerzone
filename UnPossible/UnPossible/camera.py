@@ -40,7 +40,8 @@ class Camera(object):
 
     def update(self, playerPos):
         assert isinstance(playerPos, Vector2)
-        self.rect.bottom = min(self.worldSize.y, playerPos.y + self.rect.height * 0.8)
+        #if ( playerPos.y > self.rect.height * 0.5 )
+        self.rect.bottom = min(self.worldSize.y, playerPos.y + self.rect.height * 0.6)
         self.rect.top = max(0, self.rect.top)
         self.rect.centerx = playerPos.x
         self.rect.right = min(self.worldSize.x, self.rect.right)
