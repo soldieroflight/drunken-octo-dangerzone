@@ -19,10 +19,8 @@ class Player(PhysicalObject):
         self.keyListener.update()
         if (self.keyListener.get_key_just_pressed('space')) and self.rigidbody.grounded:
             self.rigidbody.add_force(self.jumpForce.scale(1.0 / 60.0 / deltaTime))
-            self.rigidbody.grounded = False
         
-        if not self.rigidbody.grounded:
-            self.rigidbody.add_force(PLAYER_GRAVITY)
+        self.rigidbody.add_force(PLAYER_GRAVITY)
         
         # Decouple rigidbody motion from player controlled motion.
         bodyPosition = self.rigidbody.position.copy()
@@ -47,8 +45,10 @@ class Player(PhysicalObject):
         
         # Handle firing of projectiles.
         if (self.keyListener.get_key_just_pressed('f')):
-            proj = Projectile(self.transform.get_translation().copy(), Vector2(self.facing, 0.0))
+            proj = TimeProjectile(self.game, 0.2, self.transform.get_translation().copy(), Vector2(self.facing, 0.0), 100)
             self.game.projectiles.append(proj)
+
+        self.rigidbody.grounded = False
          
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)

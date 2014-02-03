@@ -68,6 +68,12 @@ class Game(object):
 
     def update(self, deltaTime):
         # Update pass.
+        for bubble in self.timeBubbles:
+            bubble.update(deltaTime) # no time dilation
+            if bubble.dead:
+                self.timeBubbles.remove(bubble)
+                del bubble
+
         for obj in self.updatable:
             localTime = deltaTime
             for bubble in self.timeBubbles:
@@ -86,6 +92,7 @@ class Game(object):
             particles.update(deltaTime, self.timeBubbles)
             if not particles.isAlive():
                 self.particles.remove(particles)
+                del particles
 
         # Collision pass.
         for obj in self.solids:

@@ -25,15 +25,33 @@ class Platform(PhysicalObject):
         self.rigidbody.draw(camera)
 
 class TimeBubble(PhysicalObject):
-    def __init__(self, timeScale, pos, radius):
+    def __init__(self, timeScale, pos, radius, lifetime=0.0):
         super().__init__(pos)
         self.timeScale = timeScale
         self.rigidbody = Sphere(pos, radius)
         self.rigidbody.solid = False
         self.radius = radius
+        self.lifetime = lifetime
+        self.dead = False
+
+    def update(self, deltaTime):
+        if self.lifetime > 0:
+            self.lifetime -= deltaTime
+            if self.lifetime <= 0:
+                self.dead = True #external cleanup
 
     def contains(self, pos):
         return dist(self.rigidbody.position, pos) < self.radius
 
     def debug_draw(self, camera):
         self.rigidbody.draw(camera)
+
+class TimeProjectile(Projectile):
+    def __init__(self, game, timeScale, pos, dir, radius):
+        super().__init__(pos, dir)
+        self.bubble = TimeBubble(timeScale, pos, radius, 20.0)
+        game.timeBubbles.append(self.bubble)
+
+    def sync_transform(self):
+        super().sync_transform()
+        self.bubble.rigidbody.position = self.rigidbody.position
