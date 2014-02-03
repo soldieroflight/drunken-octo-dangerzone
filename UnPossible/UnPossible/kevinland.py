@@ -11,10 +11,11 @@ from levels import *
 
 if __name__ == "__main__":
     pygame.init()
-    keyboard.initialize()
     
     screen = pygame.display.set_mode((640,480))
     clock = pygame.time.Clock()
+
+    keyboard.initialize()
 
     level = Level1()
     game = Game(screen)

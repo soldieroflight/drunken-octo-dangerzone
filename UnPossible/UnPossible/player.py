@@ -5,7 +5,7 @@ class Player(PhysicalObject):
     def __init__(self, game, pos=Vector2(0,0)):
         super().__init__(pos)
         self.game = game
-        self.keyListener = keyboard.Keyboard()
+        self.keyListener = keyboard.keyboard
         self.rigidbody = AABB(pos, 30, 60)
         self.rigidbody.owner = self
         self.speed = 180.0 # units/second
@@ -16,7 +16,8 @@ class Player(PhysicalObject):
         super().update(deltaTime)
         movementVector = Vector2(0.0, 0.0)
         
-        if (self.keyListener.get_key_pressed('space')) and self.rigidbody.grounded:
+        self.keyListener.update()
+        if (self.keyListener.get_key_just_pressed('space')) and self.rigidbody.grounded:
             self.rigidbody.add_force(self.jumpForce.scale(1.0 / 60.0 / deltaTime))
             self.rigidbody.grounded = False
         
@@ -45,7 +46,7 @@ class Player(PhysicalObject):
         self.rigidbody.clear_forces()
         
         # Handle firing of projectiles.
-        if (self.keyListener.get_key_pressed('f')):
+        if (self.keyListener.get_key_just_pressed('f')):
             proj = Projectile(self.transform.get_translation().copy(), Vector2(self.facing, 0.0))
             self.game.projectiles.append(proj)
          

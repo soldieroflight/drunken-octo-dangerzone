@@ -565,8 +565,8 @@ def aabb_vs_plane(box, plane):
             
         if not box.callback is None:
             box.callback(plane)
-    elif plane.normal.y < -0.5:
-        box.grounded = False
+    #elif plane.normal.y < -0.5:
+    #    box.grounded = False
     # if math.fabs(diff) < 1 and plane.normal.y < -0.5:
         # box.grounded = True
     # elif bp:
