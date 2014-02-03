@@ -1,6 +1,9 @@
 from baseobjects import *
 from game import *
 
+MAX_HP = 3
+INVINCIBILITY_AFTER_HIT_TIME = 0.5
+
 class Player(PhysicalObject):
     def __init__(self, game, pos=Vector2(0,0)):
         super().__init__(pos)
@@ -12,8 +15,23 @@ class Player(PhysicalObject):
         self.jumpForce = Vector2(0.0, -35000.0)
         self.facing = 1.0
         
+        self.maxHP = 5
+        self.damageTaken = 0
+        self.invincibilityTime = INVINCIBILITY_AFTER_HIT_TIME
+        self.invincibilityTimer = self.invincibilityTime
+        
+        self.debugName = "Player"
+        
     def update(self, deltaTime):
         super().update(deltaTime)
+        
+        # am i dead?
+        if self.damageTaken >= self.maxHP:
+            return
+        
+        if self.isInvincible():
+            self.invincibilityTimer += deltaTime
+        
         movementVector = Vector2(0.0, 0.0)
         
         self.keyListener.update()
@@ -50,5 +68,18 @@ class Player(PhysicalObject):
             proj = Projectile(self.transform.get_translation().copy(), Vector2(self.facing, 0.0))
             self.game.projectiles.append(proj)
          
+    def isInvincible( self ):
+        return self.invincibilityTimer < self.invincibilityTime
+        
+    def hurt( self, damage ):
+        self.damageTaken += damage
+        self.invincibilityTimer = 0.0
+        if self.damageTaken >= self.maxHP:
+            self.debug_say( "OW I AM DEAD" )
+         
     def debug_draw(self, camera):
-        self.rigidbody.draw(camera)
+        if self.isInvincible():
+            self.rigidbody.draw(camera, (255,0,0))
+        else:
+            self.rigidbody.draw(camera)
+        

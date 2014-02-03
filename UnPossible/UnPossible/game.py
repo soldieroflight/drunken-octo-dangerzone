@@ -41,8 +41,6 @@ class Game(object):
         self.camera = Camera(Vector2(640, 480), self.level.worldSize, self.screen)
     
         self.enemies.extend(level.enemies)
-        #self.enemies.append( BaseEnemy( Vector2( 300, 400 ) ) )
-        #self.enemies.append( PatrollingEnemy( Vector2( 600, 400 ), [ Vector2( 600, 400 ), Vector2( 800, 400 ) ] ) )
         
         self.switches.extend(level.switches)
         self.links.extend(level.links)
@@ -98,13 +96,13 @@ class Game(object):
 
         for obj in self.switches:
             test_collision(self.player.rigidbody, obj.rigidbody)
-        
+                
         # Post-update cleanup.
         for obj in self.updatable:
             obj.sync_transform()
         for proj in self.projectiles:
             proj.sync_transform()
-
+        
         # Camera pass.
         self.camera.update(self.player.rigidbody.position)
 

@@ -10,7 +10,9 @@ DEFAULT_ENEMY_WIDTH = 40
 DEFAULT_ENEMY_HEIGHT = 40
 DEFAULT_ENEMY_SPEED = 100.0
 DEFAULT_ENEMY_HP = 3
-DEFAULT_PATROLLING_ENEMY_WAIT_AT_POINT_TIME = 3.0
+DEFAULT_ENEMY_COLLISION_DAMAGE = 1
+DEFAULT_PATROLLING_ENEMY_WAIT_AT_POINT_TIME = 1.0
+DEBUG_DRAW_HURT_FRAMES = 10
 
 class BaseEnemy( PhysicalObject ):
     def __init__( self, pos = Vector2( 0, 0 ) ):
@@ -18,36 +20,59 @@ class BaseEnemy( PhysicalObject ):
         
         self.rigidbody = AABB( pos, DEFAULT_ENEMY_WIDTH, DEFAULT_ENEMY_HEIGHT )
         self.rigidbody.callback = self.on_collision
+        self.rigidbody.owner = self
         
         self.state = IDLE
+        self.expired = False
         self.speed = DEFAULT_ENEMY_SPEED
         self.maxHP = DEFAULT_ENEMY_HP
-        self.damage = 0
+        self.damageTaken = 0
+        self.collisionDamageDone = DEFAULT_ENEMY_COLLISION_DAMAGE
+        
+        self.debugName = "BaseEnemy"
+        self.debugDrawHurtColor = DEBUG_DRAW_HURT_FRAMES
         
     def update( self, deltaTime ):
-        if self.damage >= self.maxHP:
-            self.setState( DEAD )
-            
-        # print( self.rigidbody.forces )
-        # print( self.rigidbody.backForces )
-        # print( self.rigidbody.accel() )
-        # print( self.rigidbody.velocity )
+    
+        if self.state == DEAD:
+            return
+    
+        if self.damageTaken >= self.maxHP:
+            self.state = DEAD
+            self.expired = True
+            self.debug_say( "aiee!" )
+        
         self.rigidbody.update( deltaTime )
         
         self.rigidbody.clear_forces()
         
     def move( self, movementVector ):
-        pass
-        # self.transform.translate( movementVector )
-        # self.rigidbody.position = self.transform.get_translation()
-        # self.rigidbody.clear_forces()
+        self.transform.translate( movementVector )
+        self.rigidbody.position = self.transform.get_translation()
+        self.rigidbody.clear_forces()
         
     def on_collision( self, other ):
-        print( "ow" )
+        if self.state == DEAD:
+            return False
+        if isinstance( other.owner, Player ):
+            player = other.owner
+            if player.isInvincible():
+                return True
+            player.hurt( self.collisionDamageDone )
+        elif isinstance( other.owner, Projectile ):
+            self.hurt( other.owner.damageDone )
         return True
         
+    def hurt( self, damage ):
+        self.damageTaken += damage
+        self.debugDrawHurtColor = 0
+        
     def debug_draw( self, camera ):
-        self.rigidbody.draw( camera )
+        if self.debugDrawHurtColor < DEBUG_DRAW_HURT_FRAMES:
+            self.rigidbody.draw( camera, (0, 0, 255) )
+            self.debugDrawHurtColor += 1
+        else:
+            self.rigidbody.draw( camera )
                 
         
 class PatrollingEnemy( BaseEnemy ):
@@ -58,10 +83,15 @@ class PatrollingEnemy( BaseEnemy ):
         self.timeToWaitAtPoint = DEFAULT_PATROLLING_ENEMY_WAIT_AT_POINT_TIME
         self.waitTimer = 0.0
         
+        self.debugName = "PatrollingEnemy"
+        
     def update( self, deltaTime ):
         super().update( deltaTime )
         
-        if self.state == IDLE:
+        if self.state == DEAD:
+            return
+        
+        elif self.state == IDLE:
             self.patrol( deltaTime )
         
     def patrol( self, deltaTime ):
