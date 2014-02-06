@@ -50,7 +50,7 @@ class AnimatedObject(object):
             self.currentFrame = self.animationEndFrame
             self.animating = False
         
-    def draw(self, screen, pos=None, anchor=None):
+    def draw(self, screen, pos=None, anchor=None, subrect=None):
         spriteRow = int(self.currentFrame / self.numSpriteCols)
         spriteCol = self.currentFrame % self.numSpriteCols
         area = pygame.Rect((self.rect.width * spriteCol, self.rect.height * spriteRow), self.size)
@@ -66,5 +66,8 @@ class AnimatedObject(object):
                 self.rect.midtop = pos
             else:
                 self.rect.center = (pos[0] + anchor[0], pos[1] + anchor[1])
+
+        if subrect != None:
+            area = pygame.Rect((area.left + subrect.left, area.top + subrect.top), subrect.size)
         
         screen.blit(self.colorImage, self.rect.topleft, area)

@@ -2,6 +2,25 @@ import pygame
 from physics.mathutils import *
 import random
 
+class BackgroundPlane(object):
+    def __init__(self, image):
+        self.image = image
+        self.dimensions = image.get_size()
+
+    def draw(self, camera, subrect):
+        camera.blit(self.image, 0, subrect)
+
+class AnimatedBackgroundPlane(object):
+    def __init__(self, animation):
+        self.animation = animation
+        self.dimensions = animation.rect.size
+
+    def draw(self, camera, subrect):
+        self.animation.draw(camera, (0, 0), subrect=subrect)
+
+#class BackgroundSprite(object):
+#    def __init__(self, animation, )
+
 class Camera(object):
     """Transforms coordinates from world to screen"""
     def __init__(self, screenSize, worldSize, screen):
