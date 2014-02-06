@@ -112,6 +112,7 @@ class Game(object):
             proj.sync_transform()
         
         # Camera pass.
+        self.camera.updateBackground(deltaTime)
         self.camera.update(self.player.rigidbody.position)
 
     def draw(self):

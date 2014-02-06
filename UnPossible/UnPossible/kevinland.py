@@ -27,7 +27,9 @@ if __name__ == "__main__":
     game = Game(screen)
     game.load_level(level)
 
-    game.camera.debug_set_background([WINDOW_SIZE, (1200, 800), (1600, 800)])
+    game.camera.debug_set_background(\
+        [WINDOW_SIZE, (1200, 800), (1600, 800)],\
+        [((7000, 800), (300, 300), (800, 300))])
 
     game.timeBubbles.append(TimeBubble(0.5, Vector2(400, 500), 50))
 

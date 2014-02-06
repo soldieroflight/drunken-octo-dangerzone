@@ -71,3 +71,36 @@ class AnimatedObject(object):
             area = pygame.Rect((area.left + subrect.left, area.top + subrect.top), subrect.size)
         
         screen.blit(self.colorImage, self.rect.topleft, area)
+
+class FakeAnimatedObject(object):
+    def __init__(self, image):
+        self.image = image
+        self.size = self.image.get_size()
+        self.rect = pygame.Rect((0, 0), self.size)
+
+    def animate(self, startFrame, endFrame, speed=1, loop=False):
+        pass
+
+    def stop(self):
+        pass
+
+    def update(self, deltaTime):
+        pass
+
+    def draw(self, screen, pos=None, anchor=None, subrect=None):
+        if subrect is None:
+            subrect = pygame.Rect((0, 0), self.size)
+        
+        if pos != None:
+            if isinstance(pos, Vector2):
+                pos = pos.safe_pos()
+            if anchor == 'center' or anchor == None:
+                self.rect.center = pos
+            elif anchor == 'bottom':
+                self.rect.midbottom = pos
+            elif anchor == 'top':
+                self.rect.midtop = pos
+            else:
+                self.rect.center = (pos[0] + anchor[0], pos[1] + anchor[1])
+        
+        screen.blit(self.image, self.rect.topleft, subrect)

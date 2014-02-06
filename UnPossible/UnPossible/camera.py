@@ -1,5 +1,6 @@
 import pygame
 from physics.mathutils import *
+from animatedObject import *
 import random
 
 class BackgroundPlane(object):
@@ -7,19 +8,52 @@ class BackgroundPlane(object):
         self.image = image
         self.dimensions = image.get_size()
 
-    def draw(self, camera, subrect):
-        camera.blit(self.image, 0, subrect)
+    def update(self, deltaTime):
+        pass
+
+    def draw(self, screen, subrect):
+        screen.blit(self.image, (0, 0), subrect)
 
 class AnimatedBackgroundPlane(object):
     def __init__(self, animation):
         self.animation = animation
         self.dimensions = animation.rect.size
 
-    def draw(self, camera, subrect):
-        self.animation.draw(camera, (0, 0), subrect=subrect)
+    def update(self, deltaTime):
+        self.animation.update(deltaTime)
 
-#class BackgroundSprite(object):
-#    def __init__(self, animation, )
+    def draw(self, screen, subrect):
+        self.animation.draw(screen, (0, 0), subrect=subrect)
+
+class BackgroundSprite(object):
+    def __init__(self, animation, parallaxDimensions=None, parallaxQuantity=None, worldDimensions=None, worldCoordinates=None, parallaxCoordinates=None):
+        self.animation = animation
+        if parallaxDimensions != None:
+            self.dimensions = parallaxDimensions
+        elif parallaxQuantity != None and worldDimensions != None:
+            assert parallaxQuantity < 1.0
+            self.dimensions = (worldDimensions[0] / parallaxQuantity, worldDimensions[1] / parallaxQuantity)
+        else:
+            assert False
+        self.imageDimensions = animation.rect.size
+
+        if parallaxCoordinates != None:
+            self.coordinates = parallaxCoordinates
+        elif worldCoordinates != None and worldDimensions != None:
+            self.coordinates = (worldCoordinates[0] * (float(self.dimensions[0]) / worldDimensions[0]), worldCoordinates[1] * (float(self.dimensions[1]) / worldDimensions[1]))
+        else:
+            assert False
+        assert self.coordinates[0] + self.imageDimensions[0] < self.dimensions[0] and self.coordinates[1] + self.imageDimensions[1] < self.dimensions[1]
+
+    def update(self, deltaTime):
+        self.animation.update(deltaTime)
+
+    def draw(self, screen, subrect):
+        rect = pygame.Rect(self.coordinates, self.dimensions)
+        if not subrect.colliderect(rect):
+            return
+        coordinates = (self.coordinates[0] - subrect.left, self.coordinates[1] - subrect.top)
+        self.animation.draw(screen, coordinates)
 
 class Camera(object):
     """Transforms coordinates from world to screen"""
@@ -28,27 +62,35 @@ class Camera(object):
         self.worldSize = worldSize
         self.screen = screen
         self.backgrounds = []
-        self.backgroundDimensions = []
 
     def set_background(self, surfaces):
         for surface in surfaces:
-            assert surface.get_width() <= self.worldSize.x and surface.get_height() <= self.worldSize.y
-            assert surface.get_width() >= self.rect.width and surface.get_height >= self.rect.height
+            assert surface.dimensions[0] <= self.worldSize.x and surface.dimensions[1] <= self.worldSize.y
+            assert surface.dimensions[0] >= self.rect.width and surface.dimensions[1] >= self.rect.height
         self.backgrounds = surface
-        self.backgroundDimensions = [surface.get_size() for surface in self.backgrounds]
 
-    def debug_set_background(self, dimensionsList):
+    def debug_set_background(self, dimensionsList, spriteDimensions=None):
         for dimensions in dimensionsList:
             assert dimensions[0] <= self.worldSize.x and dimensions[1] <= self.worldSize.y
             assert dimensions[0] >= self.rect.width and dimensions[1] >= self.rect.height
-        self.backgrounds = [pygame.Surface(dimensions, pygame.SRCALPHA) for dimensions in dimensionsList]
-        self.backgroundDimensions = dimensionsList
+        self.backgrounds = [BackgroundPlane(pygame.Surface(dimensions, pygame.SRCALPHA)) for dimensions in dimensionsList]
         for background in self.backgrounds:
             for i in range(0, 10):
+                dimensions = background.dimensions
                 pos = (int(random.uniform(0, dimensions[0])), int(random.uniform(0, dimensions[1])))
                 radius = int(random.uniform(1.0, 100.0))
                 color = (int(random.uniform(0, 255)), int(random.uniform(0, 255)), int(random.uniform(0, 255)))
-                pygame.draw.circle(background, color, pos, radius)
+                pygame.draw.circle(background.image, color, pos, radius)
+        if spriteDimensions != None:
+            for dimensions in spriteDimensions:
+                assert dimensions[0][0] <= self.worldSize.x and dimensions[0][1] <= self.worldSize.y
+                assert dimensions[0][0] >= self.rect.width and dimensions[0][1] >= self.rect.height
+            sprites = [BackgroundSprite(FakeAnimatedObject(pygame.Surface(dimensions[1], pygame.SRCALPHA)), parallaxDimensions=dimensions[0], parallaxCoordinates=dimensions[2]) for dimensions in spriteDimensions]
+            for sprite in sprites:
+                    radius = int(min(sprite.imageDimensions[0] / 2, sprite.imageDimensions[1] / 2))
+                    color = (int(random.uniform(0, 255)), int(random.uniform(0, 255)), int(random.uniform(0, 255)))
+                    pygame.draw.circle(sprite.animation.image, color, (int(sprite.imageDimensions[0] / 2), int(sprite.imageDimensions[1] / 2)), radius)
+            self.backgrounds.extend(sprites)
 
     def transform(self, worldCoordinates):
         if isinstance(worldCoordinates, Vector2):
@@ -71,14 +113,20 @@ class Camera(object):
         assert isinstance(boundingBox, pygame.Rect)
         return self.rect.colliderect(boundingBox)
 
+    def updateBackground(self, deltaTime):
+        for background in self.backgrounds:
+            background.update(deltaTime)
+
     def drawBackground(self):
         backgroundRect = self.rect.copy()
         width = self.worldSize.x - self.rect.width
         height = self.worldSize.y - self.rect.height
-        for background, dimensions in zip(self.backgrounds, self.backgroundDimensions):
+        for background in self.backgrounds:
+            dimensions = background.dimensions
             backgroundRect.left = self.rect.left / width * (dimensions[0] - self.rect.width)
             backgroundRect.top = self.rect.top / height * (dimensions[1] - self.rect.height)
-            self.screen.blit(background, (0, 0), backgroundRect)
+            background.draw(self.screen, backgroundRect)
+            #self.screen.blit(background, (0, 0), backgroundRect)
         pass
 
     def blit(self, source, worldCoords, area=None, special_flags = 0):

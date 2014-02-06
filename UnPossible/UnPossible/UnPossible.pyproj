@@ -40,6 +40,9 @@
     <Compile Include="levelobjects.py" />
     <Compile Include="levels.py" />
     <Compile Include="link.py" />
+    <Compile Include="performance\framerate.py" />
+    <Compile Include="performance\globals.py" />
+    <Compile Include="performance\__init__.py" />
     <Compile Include="physics\globals.py" />
     <Compile Include="physics\particles.py" />
     <Compile Include="physics\collisionutils.py" />
@@ -52,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="input\" />
+    <Folder Include="performance\" />
     <Folder Include="physics\" />
   </ItemGroup>
   <ItemGroup>
