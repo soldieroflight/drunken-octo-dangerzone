@@ -8,27 +8,28 @@ class Camera(object):
         self.rect = pygame.Rect(0, 0, screenSize.x, screenSize.y)
         self.worldSize = worldSize
         self.screen = screen
-        self.background = None
-        self.backgroundDimensions = self.worldSize
-        self.parallaxScale = 1.0
+        self.backgrounds = []
+        self.backgroundDimensions = []
 
-    def set_background(self, surface, parallaxScale=1.0):
-        assert surface.get_width() * parallaxScale <= self.worldSize.x and surface.get_height() * parallaxScale <= self.worldSize.y
-        assert surface.get_width() >= self.rect.width and surface.get_height >= self.rect.height
-        self.background = surface
-        self.backgroundDimensions = surface.get_size()
-        self.parallaxScale = parallaxScale
+    def set_background(self, surfaces):
+        for surface in surfaces:
+            assert surface.get_width() <= self.worldSize.x and surface.get_height() <= self.worldSize.y
+            assert surface.get_width() >= self.rect.width and surface.get_height >= self.rect.height
+        self.backgrounds = surface
+        self.backgroundDimensions = [surface.get_size() for surface in self.backgrounds]
 
-    def debug_set_background(self, dimensions):
-        assert dimensions[0] <= self.worldSize.x and dimensions[1] <= self.worldSize.y
-        assert dimensions[0] >= self.rect.width and dimensions[1] >= self.rect.height
-        self.background = pygame.Surface(dimensions)
-        self.backgroundDimensions = dimensions
-        for i in range(0, 10):
-            pos = (int(random.uniform(0, dimensions[0])), int(random.uniform(0, dimensions[1])))
-            radius = int(random.uniform(1.0, 100.0))
-            color = (int(random.uniform(0, 255)), int(random.uniform(0, 255)), int(random.uniform(0, 255)))
-            pygame.draw.circle(self.background, color, pos, radius)
+    def debug_set_background(self, dimensionsList):
+        for dimensions in dimensionsList:
+            assert dimensions[0] <= self.worldSize.x and dimensions[1] <= self.worldSize.y
+            assert dimensions[0] >= self.rect.width and dimensions[1] >= self.rect.height
+        self.backgrounds = [pygame.Surface(dimensions, pygame.SRCALPHA) for dimensions in dimensionsList]
+        self.backgroundDimensions = dimensionsList
+        for background in self.backgrounds:
+            for i in range(0, 10):
+                pos = (int(random.uniform(0, dimensions[0])), int(random.uniform(0, dimensions[1])))
+                radius = int(random.uniform(1.0, 100.0))
+                color = (int(random.uniform(0, 255)), int(random.uniform(0, 255)), int(random.uniform(0, 255)))
+                pygame.draw.circle(background, color, pos, radius)
 
     def transform(self, worldCoordinates):
         if isinstance(worldCoordinates, Vector2):
@@ -55,9 +56,10 @@ class Camera(object):
         backgroundRect = self.rect.copy()
         width = self.worldSize.x - self.rect.width
         height = self.worldSize.y - self.rect.height
-        backgroundRect.left = self.rect.left / width * (self.backgroundDimensions[0] - self.rect.width) * self.parallaxScale
-        backgroundRect.top = self.rect.top / height * (self.backgroundDimensions[1] - self.rect.height) * self.parallaxScale
-        self.screen.blit(self.background, (0, 0), backgroundRect)
+        for background, dimensions in zip(self.backgrounds, self.backgroundDimensions):
+            backgroundRect.left = self.rect.left / width * (dimensions[0] - self.rect.width)
+            backgroundRect.top = self.rect.top / height * (dimensions[1] - self.rect.height)
+            self.screen.blit(background, (0, 0), backgroundRect)
         pass
 
     def blit(self, source, worldCoords, area=None, special_flags = 0):
