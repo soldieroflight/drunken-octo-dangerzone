@@ -37,7 +37,7 @@ class Player(PhysicalObject):
         self.game.particles.append(self.jetpackParticles)
         self.jetpackParticles.pause()
         
-        self.maxHP = 5
+        self.maxHP = 5000
         self.damageTaken = 0
         self.invincibilityTime = INVINCIBILITY_AFTER_HIT_TIME
         self.invincibilityTimer = self.invincibilityTime

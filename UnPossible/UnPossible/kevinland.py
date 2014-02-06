@@ -10,7 +10,7 @@ from camera import *
 from game import *
 from levels import *
 
-WINDOW_SIZE = (640, 480)
+WINDOW_SIZE = (1024, 768)
 TARGET_FRAMERATE = 60
 
 if __name__ == "__main__":
@@ -20,7 +20,6 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     
     framerateMonitor = framerate.FramerateMonitor(TARGET_FRAMERATE)
-    framerateFont = pygame.font.Font(None,20)
 
     keyboard.initialize()
 
@@ -28,11 +27,9 @@ if __name__ == "__main__":
     game = Game(screen)
     game.load_level(level)
 
-    game.camera.debug_set_background([(640, 480), (900, 550), (1200, 600)])
+    game.camera.debug_set_background([WINDOW_SIZE, (1200, 800), (1600, 800)])
 
     game.timeBubbles.append(TimeBubble(0.5, Vector2(400, 500), 50))
-
-    # set up pygame stuff
 
     while True:
         clock.tick(TARGET_FRAMERATE)
@@ -55,9 +52,6 @@ if __name__ == "__main__":
         game.draw()
         
         framerateMonitor.update(deltaTime)
-        fps = framerateFont.render("%.3f" % framerateMonitor.average,1,(255,255,255))
-        fpsRect = fps.get_rect()
-        fpsRect.center = (600,465)
-        screen.blit(fps,fpsRect)
+        framerateMonitor.draw(screen)
         
         pygame.display.update()

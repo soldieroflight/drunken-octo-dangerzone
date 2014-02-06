@@ -29,7 +29,7 @@ class TestLevel(Level):
 class PlatformTest(Level):
     def __init__(self):
         super().__init__()
-        self.worldSize = Vector2(1200, 600)
+        self.worldSize = Vector2(1500, 800)
         self.ground = 500
         self.playerStart = Vector2(300, 400)
         
