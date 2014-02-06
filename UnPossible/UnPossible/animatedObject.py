@@ -1,5 +1,5 @@
 import pygame
-from mathutils import *
+from physics.mathutils import *
 
 colorKey = (255, 255, 0)
 bwColorKey = (127, 127, 127)
@@ -31,7 +31,7 @@ class AnimatedObject(object):
         self.animationStartFrame = startFrame
         self.currentFrame = startFrame
         self.animationEndFrame = endFrame
-        self.animationSpeed = speed
+        self.animationSpeed = float(speed)
         self.animationLoop = loop
         
     def stop(self):
@@ -42,22 +42,29 @@ class AnimatedObject(object):
         """Updates the sprite to use a different sprite from the sheet, based on the current animation data"""
         if not self.animating: return
         self.animationTime += deltaTime
-        self.currentFrame += int(self.animationTime / self.animationSpeed)
-        self.animationTime %= self.animationSpeed
+        self.currentFrame += int(self.animationTime * self.animationSpeed)
+        self.animationTime %= (1.0/self.animationSpeed)
         if self.animationLoop:
             self.currentFrame = ((self.currentFrame - self.animationStartFrame) % (self.animationEndFrame - self.animationStartFrame + 1)) + self.animationStartFrame
         elif self.currentFrame >= self.animationEndFrame:
             self.currentFrame = self.animationEndFrame
             self.animating = False
         
-    def draw(self, screen, pos=None):
+    def draw(self, screen, pos=None, anchor=None):
         spriteRow = int(self.currentFrame / self.numSpriteCols)
         spriteCol = self.currentFrame % self.numSpriteCols
         area = pygame.Rect((self.rect.width * spriteCol, self.rect.height * spriteRow), self.size)
         
         if pos != None:
             if isinstance(pos, Vector2):
-                pos = (pos.x, pos.y)
-            self.rect.center = pos
+                pos = pos.safe_pos()
+            if anchor == 'center' or anchor == None:
+                self.rect.center = pos
+            elif anchor == 'bottom':
+                self.rect.midbottom = pos
+            elif anchor == 'top':
+                self.rect.midtop = pos
+            else:
+                self.rect.center = (pos[0] + anchor[0], pos[1] + anchor[1])
         
         screen.blit(self.colorImage, self.rect.topleft, area)
