@@ -117,7 +117,10 @@ class Game(object):
         self.camera.drawBackground()
 
         for obj in self.everything:
-            obj.debug_draw(self.camera)
+            try:
+                obj.draw(self.camera)
+            except AttributeError:
+                obj.debug_draw(self.camera)
         
         for proj in self.projectiles:
             proj.debug_draw(self.camera)

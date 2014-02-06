@@ -1,6 +1,7 @@
 from baseobjects import *
 from game import *
 from physics.particles import *
+from animatedObject import *
 
 MAX_HP = 3
 INVINCIBILITY_AFTER_HIT_TIME = 0.5
@@ -15,6 +16,9 @@ class Player(PhysicalObject):
         self.speed = 180.0 # units/second
         self.jumpForce = Vector2(0.0, -35000.0)
         self.facing = 1.0
+
+        self.animation = AnimatedObject("..\Art\WidgetIdle.png", 2, 6)
+        self.animation.animate(0, 5, 5, True)
 
         # Jetpack
         self.hasJetpack = True # For debugging...
@@ -46,6 +50,7 @@ class Player(PhysicalObject):
         
     def update(self, deltaTime):
         super().update(deltaTime)
+        self.animation.update(deltaTime)
         
         # am i dead?
         if self.damageTaken >= self.maxHP:
@@ -132,6 +137,10 @@ class Player(PhysicalObject):
         self.invincibilityTimer = 0.0
         if self.damageTaken >= self.maxHP:
             self.debug_say( "OW I AM DEAD" )
+
+    def draw(self, camera):
+        self.animation.draw(camera, self.rigidbody.position, (0, -30))
+        self.debug_draw(camera)
          
     def debug_draw(self, camera):
         if self.isInvincible():

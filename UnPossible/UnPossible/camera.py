@@ -63,9 +63,13 @@ class Camera(object):
         pass
 
     def blit(self, source, worldCoords, area=None, special_flags = 0):
-        assert isinstance(worldCoords, pygame.Rect)
-        if not self.isInCamera(worldCoords):
-            return
+        if isinstance(worldCoords, pygame.Rect):
+            if not self.isInCamera(worldCoords):
+                return
+        else:
+            worldRect = pygame.Rect(worldCoords, area.size)
+            if not self.isInCamera(worldRect):
+                return
         screenCoords = self.transform(worldCoords)
         self.screen.blit(source, screenCoords, area, special_flags)
 
