@@ -38,7 +38,8 @@ class Game(object):
         level.load()
     
         self.player = Player(self, level.playerStart)
-        self.camera = Camera(Vector2(640, 480), self.level.worldSize, self.screen)
+        screenSize = self.screen.get_rect().size
+        self.camera = Camera(Vector2(screenSize[0], screenSize[1]), self.level.worldSize, self.screen)
     
         self.enemies.extend(level.enemies)
         
