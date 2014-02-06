@@ -8,11 +8,12 @@ from levelobjects import *
 from events.link import Link
 
 pygame.init()
-keyboard.initialize()
 
 screen = pygame.display.set_mode((1024,768))
 clock = pygame.time.Clock()
 camera = Camera(Vector2(1024, 768), Vector2(10000, 10000), screen)
+
+keyboard.initialize()
 
 _link2 = Link([], (Vector2(600.0, 100.0), Vector2(600.0, 5.0)), 60.0)
 _link3 = Link([], (Vector2(600.0, 100.0), Vector2(600.0, 500.0)), 10.0)

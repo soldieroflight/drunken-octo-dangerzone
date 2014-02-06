@@ -1,5 +1,6 @@
 from levelobjects import *
 from baselevel import *
+from enemies import *
 from floorswitch import *
 from link import *
 
@@ -58,4 +59,51 @@ class Level1(Level):
         self.platforms.append(Platform(Vector2(550, 100), 300, 100))
         self.platforms.append(Platform(Vector2(850, 100), 50, 150))
         self.platforms.append(Platform(Vector2(900, 100), 50, 200))
-        self.platforms.append(Platform(Vector2(950, 100), 250, 250))
+        self.platforms.append(Platform(Vector2(950, 100), 350, 250))
+        self.platforms.append(Platform(Vector2(1300, 100), 50, 200))
+        self.platforms.append(Platform(Vector2(1350, 100), 300, 250))
+        self.platforms.append(Platform(Vector2(1650, 100), 100, 200))
+        self.platforms.append(Platform(Vector2(1750, 100), 400, 250))
+        self.platforms.append(Platform(Vector2(2150, 100), 50, 175))
+        self.platforms.append(Platform(Vector2(2200, 100), 50, 100))
+        self.platforms.append(Platform(Vector2(2250, 100), 300, 250))
+        self.platforms.append(Platform(Vector2(2550, 100), 50, 175))
+        self.platforms.append(Platform(Vector2(2600, 100), 50, 100))
+        self.platforms.append(Platform(Vector2(2675, 325), 100, 25)) #Platform 1
+        self.platforms.append(Platform(Vector2(2875, 325), 100, 25)) #Platform 2
+        self.platforms.append(Platform(Vector2(2650, 100), 425, 25))
+        self.platforms.append(Platform(Vector2(3075, 100), 325, 250))
+        self.platforms.append(Platform(Vector2(3500, 100), 100, 250))
+        self.platforms.append(Platform(Vector2(3700, 100), 100, 250))
+        self.platforms.append(Platform(Vector2(3900, 100), 200, 250))
+        self.platforms.append(Platform(Vector2(4100, 100), 500, 125))
+        self.platforms.append(Platform(Vector2(4150, 375), 400, 25)) #Moving Platform 1
+        self.platforms.append(Platform(Vector2(4600, 100), 200, 300))
+        self.platforms.append(Platform(Vector2(4900, 375), 300, 25)) #Moving Platform 2
+        self.platforms.append(Platform(Vector2(5200, 375), 300, 25)) #Moving Platform 3
+        self.platforms.append(Platform(Vector2(5600, 100), 400, 300))
+        self.platforms.append(Platform(Vector2(5850, 425), 100, 175)) #Moving Platform 4
+        self.platforms.append(Platform(Vector2(6000, 100), 150, 500)) #Moving Platform 4
+        
+        basicEnemy = BaseEnemy( Vector2( 300, 730 ) )
+        basicEnemy.debugName = "Steve"
+        self.enemies.append( basicEnemy )
+        
+        patrollingEnemy = PatrollingEnemy( Vector2( 600, 680 ), [ Vector2( 600, 680 ), Vector2( 800, 680 ) ] )
+        patrollingEnemy.debugName = "Wanda"
+        self.enemies.append( patrollingEnemy )
+        
+        hoverPatrolPoints = [ Vector2(1100, 400), Vector2(1400, 400), Vector2(1500, 500), Vector2(1200, 500) ]
+        hoveringEnemy = PatrollingEnemy( hoverPatrolPoints[ 0 ], hoverPatrolPoints )
+        hoveringEnemy.debugName = "hoverbot9000"
+        hoveringEnemy.speed = 150.0
+        self.enemies.append( hoveringEnemy )
+        
+        
+        
+        
+        
+        
+        
+        
+        

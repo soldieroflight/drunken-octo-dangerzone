@@ -14,6 +14,8 @@ class GameObject(object):
         self.parent = None
         self.setup(pos)
         
+        self.debugName = "unnamed object"
+        
     def setup(self, pos):
         self.transform.translate_x(pos.x)
         self.transform.translate_y(pos.y)
@@ -23,6 +25,9 @@ class GameObject(object):
         
     def sync_transform(self):
         pass
+        
+    def debug_say( self, message ):
+        print( self.debugName + ": " + str( message ) )
         
         
 class PhysicalObject(GameObject):
@@ -39,12 +44,14 @@ class Projectile(PhysicalObject):
         super().__init__(pos)
         self.radius = 3
         self.rigidbody = AABB(pos, self.radius, self.radius)
+        self.rigidbody.owner = self
         self.initialSpeed = 500
         self.rigidbody.velocity = Vector2(dir.x * self.initialSpeed, dir.y)
         self.rigidbody.callback = self.on_collision
         self.rigidbody.owner = self
         # Checked externally for cleanup.
         self.expired = False
+        self.damageDone = 1 #TODO - change for different types of projectiles. do we want to default to 0?
         
     def update(self, deltaTime):
         super().update(deltaTime)

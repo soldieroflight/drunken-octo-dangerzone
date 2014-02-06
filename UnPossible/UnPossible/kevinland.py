@@ -15,7 +15,6 @@ TARGET_FRAMERATE = 60
 
 if __name__ == "__main__":
     pygame.init()
-    keyboard.initialize()
     
     screen = pygame.display.set_mode(WINDOW_SIZE)
     clock = pygame.time.Clock()
@@ -23,7 +22,9 @@ if __name__ == "__main__":
     framerateMonitor = framerate.FramerateMonitor(TARGET_FRAMERATE)
     framerateFont = pygame.font.Font(None,20)
 
-    level = TestLevel()
+    keyboard.initialize()
+
+    level = Level1()
     game = Game(screen)
     game.load_level(level)
 
@@ -47,7 +48,8 @@ if __name__ == "__main__":
                 pygame.quit()
                 sys.exit()
                 
-        deltaTime = clock.get_time()/1000.0
+        # get and cap deltaTime
+        deltaTime = min( clock.get_time()/1000.0, 0.1 )
                 
         game.update(deltaTime)
         game.draw()
