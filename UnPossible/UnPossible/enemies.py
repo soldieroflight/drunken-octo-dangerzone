@@ -29,22 +29,15 @@ class BaseEnemy( PhysicalObject ):
         if self.damage >= self.maxHP:
             self.setState( DEAD )
             
-        # print( self.rigidbody.forces )
-        # print( self.rigidbody.backForces )
-        # print( self.rigidbody.accel() )
-        # print( self.rigidbody.velocity )
-        self.rigidbody.update( deltaTime, True )        
-        
+        self.rigidbody.update( deltaTime )
         self.rigidbody.clear_forces()
         
     def move( self, movementVector ):
-        pass
-        # self.transform.translate( movementVector )
-        # self.rigidbody.position = self.transform.get_translation()
-        # self.rigidbody.clear_forces()
+        self.transform.translate( movementVector )
+        self.rigidbody.position = self.transform.get_translation()
+        self.rigidbody.clear_forces()
         
     def on_collision( self, other ):
-        print( "ow" )
         return True
         
     def debug_draw( self, camera ):

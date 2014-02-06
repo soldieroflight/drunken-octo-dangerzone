@@ -41,8 +41,8 @@ class Game(object):
         self.camera = Camera(Vector2(640, 480), self.level.worldSize, self.screen)
     
         self.enemies.extend(level.enemies)
-        #self.enemies.append( BaseEnemy( Vector2( 300, 400 ) ) )
-        #self.enemies.append( PatrollingEnemy( Vector2( 600, 400 ), [ Vector2( 600, 400 ), Vector2( 800, 400 ) ] ) )
+        self.enemies.append( BaseEnemy( Vector2( 300, 400 ) ) )
+        self.enemies.append( PatrollingEnemy( Vector2( 600, 400 ), [ Vector2( 600, 400 ), Vector2( 800, 400 ) ] ) )
         
         self.switches.extend(level.switches)
         self.links.extend(level.links)
@@ -80,7 +80,7 @@ class Game(object):
                 if test_collision(proj.rigidbody, bubble.rigidbody):
                     localTime *= bubble.timeScale
             proj.update(localTime)
-
+            
         # Particle update.
         for particles in self.particles:
             particles.update(deltaTime, self.timeBubbles)
@@ -107,7 +107,7 @@ class Game(object):
 
         # Camera pass.
         self.camera.update(self.player.rigidbody.position)
-
+        
     def draw(self):
         self.camera.drawBackground()
 

@@ -23,7 +23,7 @@ class RigidBody(object):
         # various physics values
         self.position = pos
         self.rotation = rotation
-        self.velocity = ivel
+        self.velocity = ivel.copy()
         self.forces = []
         self.backForces = []
         self.acceleration = Vector2(0.0,0.0)
@@ -79,10 +79,6 @@ class RigidBody(object):
         
     def update(self, dt, verbose = False):
     
-        if verbose:
-            #print( self.accel() )
-            print( self.velocity )
-    
         for force in self.backForces:
             self.add_force(force)
         self.backForces = []
@@ -112,10 +108,6 @@ class RigidBody(object):
             self.position.y += (dt/6.0)*(vy1 + 2*vy2 + 2*vy3 + vy4)
             self.velocity.x += (dt/6.0)*(ax1 + 2*ax2 + 2*ax3 + ax4)
             self.velocity.y += (dt/6.0)*(ay1 + 2*ay2 + 2*ay3 + ay4)
-            
-            if verbose:
-                print ( self.velocity )
-                print ( "----" )
             
             # ###########################################################
             
@@ -565,8 +557,8 @@ def aabb_vs_plane(box, plane):
             
         if not box.callback is None:
             box.callback(plane)
-    elif plane.normal.y < -0.5:
-        box.grounded = False
+    # elif plane.normal.y < -0.5:
+        # box.grounded = False
     # if math.fabs(diff) < 1 and plane.normal.y < -0.5:
         # box.grounded = True
     # elif bp:
