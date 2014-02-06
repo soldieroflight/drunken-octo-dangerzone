@@ -23,7 +23,7 @@ class Player(PhysicalObject):
         # Jetpack
         self.hasJetpack = True # For debugging...
         self.releasedSpacePostJump = False
-        self.jetpackForce = Vector2(0.0, -3500.0)
+        self.jetpackForce = PLAYER_GRAVITY.scale(-1.25)
         self.jetpackTime = 0.0
         self.maxJetpackTime = 1.5
         self.jetpackParticles = ParticleEmitter(self.rigidbody.position, {'colors': [(255, 0, 0)],
@@ -80,7 +80,7 @@ class Player(PhysicalObject):
                         timeForForce += self.jetpackTime # < 0, so addition lowers time
                         self.jetpackTime = 0.0
                     timeScale = (timeForForce / deltaTime)
-                    self.rigidbody.add_force(self.jetpackForce.scale(timeScale / 60.0 / deltaTime))
+                    self.rigidbody.add_force(self.jetpackForce.scale(timeScale))
                 else:
                     self.jetpackParticles.pause()
             else:
