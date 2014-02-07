@@ -34,7 +34,8 @@ if __name__ == "__main__":
     game.timeBubbles.append(TimeBubble(0.5, Vector2(400, 500), 50))
 
     while True:
-        clock.tick(TARGET_FRAMERATE)
+        # Don't cap framerate. We can probably do it a better way manually.
+        clock.tick()
         screen.fill((0,0,0))
         
         # event handling
@@ -53,7 +54,7 @@ if __name__ == "__main__":
         game.update(deltaTime)
         game.draw()
         
-        framerateMonitor.update(deltaTime)
+        framerateMonitor.update()
         framerateMonitor.draw(screen)
         
         pygame.display.update()
